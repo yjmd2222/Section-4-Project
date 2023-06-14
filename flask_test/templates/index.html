@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Hello World - TensorFlow.js</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Import the webpage's stylesheet -->
+    <link rel="stylesheet" href="static/style.css">
+  </head>  
+  <body>
+    <h1>Movenet</h1>
+
+    <p>Wait for the model to load before clicking the button to enable the webcam - at which point it will become visible to use.</p>
+    
+    <section id="demos">
+
+      <p>Hold some objects up close to your webcam to get a real-time classification! When ready click "enable webcam" below and accept access to the webcam when the browser asks (check the top left of your window)</p>
+      
+      <div id="liveView" class="camView">
+        <button id="webcamButton">Enable Webcam</button>
+        <video id="webcam" autoplay muted width="1280" height="720"></video>
+      </div>
+    </section>
+    
+    <!-- Import TensorFlow.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js" type="text/javascript"></script>
+    <!-- Load the coco-ssd model to use to recognize things in images -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+
+    <!-- Import the page's JavaScript to do some stuff -->
+    <script type="module" src="/static/script.js"></script>
+    
+    <h1>Periodic POST Request</h1>
+    <script>
+        // 주기적으로 POST 요청을 보내는 함수
+        function sendPostRequest() {
+            // POST 요청을 보낼 데이터를 준비합니다.
+            var data = {
+                key1: 'value1',
+                key2: 'value2'
+            };
+            // POST 요청을 보냅니다.
+            fetch('/post-endpoint', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.text())
+            .then(result => console.log(result))
+            .catch(error => console.error(error));
+        }
+
+        // 특정 간격(밀리초)마다 POST 요청을 보내도록 설정합니다.
+        setInterval(sendPostRequest, 5000); // 5초마다 POST 요청을 보냅니다.
+    </script>
+  </body>
+</html>
