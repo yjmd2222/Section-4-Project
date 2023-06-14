@@ -20,13 +20,19 @@ if (getUserMediaSupported()) {
   enableWebcamButton.addEventListener('click', enableCam)
   enableWebcamButton.addEventListener('click', loadAndRunModel)
 }
+// if (getUserMediaSupported()) {
+//   enableWebcamButton.addEventListener('click', function () {
+//     enableCam().then(({ wWidth, wHeight}) => { 
+//       loadAndRunModel(wWidth, wHeight);
+//     });
+//   });
+// }
 else {
   console.warn('getUserMedia() is not supported by your browser');
 }
 
-function fuckThisShit(wtfYouWant){
-  return wtfYouWant
-}
+let wWidth;
+let wHeight;
 
 async function loadAndRunModel() {
   let  movenet = await tf.loadGraphModel(MODEL_PATH, {fromTFHub: true});
@@ -43,16 +49,16 @@ async function loadAndRunModel() {
     let predictions = await predictWebcam();
 
 
-    let left = parseInt(predictions.bbox[0]);
-    let top = parseInt(predictions.bbox[1]);
-    let width = parseInt(predictions.bbox[2]);
-    let height = parseInt(predictions.bbox[3]);
-    if (left < 0) {left = 0};
-    if (top < 0) {top = 0};
-    if (left + width > 1280) {width = 1280};
-    if (top + height > 720) {width = 720};
-    let cropStartPoint = [top, left, 0]; // red
-    let cropSize = [height, width, 3] // all RGB
+    let bLeft = parseInt(predictions.bbox[0]);
+    let bTop = parseInt(predictions.bbox[1]);
+    let bWidth = parseInt(predictions.bbox[2]);
+    let bHeight = parseInt(predictions.bbox[3]);
+    if (bLeft < 0) {bLeft = 0};
+    if (bTop < 0) {bTop = 0};
+    if (bLeft + bWidth > 1280) {bWidth = 1280};
+    if (bTop + bHeight > 720) {bWidth = 720};
+    let cropStartPoint = [bTop, bLeft, 0]; // red
+    let cropSize = [bHeight, bWidth, 3] // all RGB
 
     console.log(cropStartPoint);
     console.log(cropSize);
@@ -82,7 +88,6 @@ async function loadAndRunModel() {
 
 };
 
-
 // Enable the live webcam view and start classification.
 async function enableCam(event) {
   // Only continue if the COCO-SSD has finished loading.
@@ -106,15 +111,15 @@ async function enableCam(event) {
   let settings = display.getVideoTracks()[0]
       .getSettings();
 
-  let width = settings.width;
-  let height = settings.height;
+  let wWidth = settings.width;
+  let wHeight = settings.height;
 
   console.log('Actual width of the camera video: '
-      + width + 'px');
+      + wWidth + 'px');
   console.log('Actual height of the camera video:'
-      + height + 'px');
+      + wHeight + 'px');
   const p = document.createElement('p');
-  p.innerText = width + 'X' + height;
+  p.innerText = wWidth + 'X' + wHeight;
   var d = document.getElementsByTagName('div');
   d[0].append(p);
 
