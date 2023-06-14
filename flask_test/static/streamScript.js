@@ -32,21 +32,36 @@ async function loadAndRunModel() {
   let  movenet = await tf.loadGraphModel(MODEL_PATH, {fromTFHub: true});
   let exampleInputTensor = tf.zeros([1, 192, 192, 3], 'int32');
   
-  let cropStartPoint = [15, 170, 0];
-  let cropSize = [345, 345, 3];
-
   setInterval (async function(){
 
     
     tf.engine().startScope();
     let imageTensor = tf.browser.fromPixels(video);
-    let croppedTensor = tf.slice(imageTensor, cropStartPoint, cropSize);
-    // console.log(croppedTensor);
-    let predictions = await predictWebcam();
-    console.log(predictions)
 
-    // let resizedTensor = tf.image.resizeBilinear(croppedTensor, [192, 192], true).toInt();
-    let resizedTensor = tf.image.resizeBilinear(imageTensor, [192, 192], true).toInt();
+    console.log(imageTensor.shape);
+    
+    let predictions = await predictWebcam();
+
+
+    let left = parseInt(predictions.bbox[0]);
+    let top = parseInt(predictions.bbox[1]);
+    let width = parseInt(predictions.bbox[2]);
+    let height = parseInt(predictions.bbox[3]);
+    if (left < 0) {left = 0};
+    if (top < 0) {top = 0};
+    if (left + width > 1280) {width = 1280};
+    if (top + height > 720) {width = 720};
+    let cropStartPoint = [top, left, 0]; // red
+    let cropSize = [height, width, 3] // all RGB
+
+    console.log(cropStartPoint);
+    console.log(cropSize);
+
+    let croppedTensor = tf.slice(imageTensor, cropStartPoint, cropSize);
+    console.log(croppedTensor);
+
+    let resizedTensor = tf.image.resizeBilinear(croppedTensor, [192, 192], true).toInt();
+    // let resizedTensor = tf.image.resizeBilinear(imageTensor, [192, 192], true).toInt();
     // console.log(resizedTensor.shape);
 
     let tensorOutput = movenet.predict(tf.expandDims(resizedTensor));
