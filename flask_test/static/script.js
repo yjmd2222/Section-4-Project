@@ -50,6 +50,7 @@ async function loadAndRunModel() {
     let tensorOutput = movenet.predict(tf.expandDims(resizedTensor));
     let arrayOutput = await tensorOutput.array();
     console.log(arrayOutput);
+    sendPostRequest(arrayOutput);
     // tf.dispose(imageTensor);
     // tf.dispose(croppedTensor);
     // tf.dispose(resizedTensor);
@@ -121,3 +122,26 @@ async function enableCam(event) {
 //   // Show demo section now model is ready to use.
 //   demosSection.classList.remove('invisible');
 // });
+
+
+// 주기적으로 POST 요청을 보내는 함수
+async function sendPostRequest(output) {
+  // POST 요청을 보낼 데이터를 준비합니다.
+  var data = {
+      key1: output
+  };
+  // POST 요청을 보냅니다.
+  fetch('/post-endpoint', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+  })
+  .then(response => response.text())
+  .then(result => console.log(result))
+  .catch(error => console.error(error));
+}
+
+// 특정 간격(밀리초)마다 POST 요청을 보내도록 설정합니다.
+// setInterval(sendPostRequest, 5000); // 5초마다 POST 요청을 보냅니다.

@@ -30,31 +30,5 @@
 
     <!-- Import the page's JavaScript to do some stuff -->
     <script type="module" src="/static/script.js"></script>
-    
-    <h1>Periodic POST Request</h1>
-    <script>
-        // 주기적으로 POST 요청을 보내는 함수
-        function sendPostRequest() {
-            // POST 요청을 보낼 데이터를 준비합니다.
-            var data = {
-                key1: 'value1',
-                key2: 'value2'
-            };
-            // POST 요청을 보냅니다.
-            fetch('/post-endpoint', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.text())
-            .then(result => console.log(result))
-            .catch(error => console.error(error));
-        }
-
-        // 특정 간격(밀리초)마다 POST 요청을 보내도록 설정합니다.
-        setInterval(sendPostRequest, 5000); // 5초마다 POST 요청을 보냅니다.
-    </script>
   </body>
 </html>
