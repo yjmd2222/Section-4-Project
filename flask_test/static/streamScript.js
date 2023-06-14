@@ -16,22 +16,22 @@ function getUserMediaSupported() {
 // If webcam supported, add event listener to button for when user
 // wants to activate it to call enableCam function which we will 
 // define in the next step.
-// if (getUserMediaSupported()) {
-//   enableWebcamButton.addEventListener('click', enableCam)
-//   enableWebcamButton.addEventListener('click', loadAndRunModel)
-// }
 if (getUserMediaSupported()) {
-  enableWebcamButton.addEventListener('click', function (event) {
-    enableCam(event).then(({ wWidth, wHeight}) => { 
-      loadAndRunModel(wWidth, wHeight);
-    });
-  });
+  enableWebcamButton.addEventListener('click', enableCam)
+  enableWebcamButton.addEventListener('click', loadAndRunModel)
 }
+// if (getUserMediaSupported()) {
+//   enableWebcamButton.addEventListener('click', function (event) {
+//     enableCam(event).then(({ wWidth, wHeight}) => { 
+//       loadAndRunModel(wWidth, wHeight);
+//     });
+//   });
+// }
 else {
   console.warn('getUserMedia() is not supported by your browser');
 }
 
-async function loadAndRunModel(wWidth, wHeight) {
+async function loadAndRunModel() {
   let  movenet = await tf.loadGraphModel(MODEL_PATH, {fromTFHub: true});
   let exampleInputTensor = tf.zeros([1, 192, 192, 3], 'int32');
   
@@ -40,8 +40,7 @@ async function loadAndRunModel(wWidth, wHeight) {
     
     tf.engine().startScope();
     let imageTensor = tf.browser.fromPixels(video);
-
-    console.log(imageTensor.shape);
+    const [wHeight, wWidth] = imageTensor.shape;
     
     let predictions = await predictWebcam();
 
@@ -50,32 +49,61 @@ async function loadAndRunModel(wWidth, wHeight) {
     let bTop = parseInt(predictions.bbox[1]);
     let bWidth = parseInt(predictions.bbox[2]);
     let bHeight = parseInt(predictions.bbox[3]);
+    if (bWidth > wWidth) {bWidth = wWidth - bLeft};
+    if (bHeight > wHeight) {bHeight = wHeight - bTop};
     if (bLeft < 0) {bLeft = 0};
     if (bTop < 0) {bTop = 0};
-    if (bLeft + bWidth > wWidth) {bWidth = wWidth};
-    if (bTop + bHeight > wHeight) {bWidth = wHeight};
     let cropStartPoint = [bTop, bLeft, 0]; // red
     let cropSize = [bHeight, bWidth, 3] // all RGB
+    // console.log(predictions)
 
-    console.log(cropStartPoint);
-    console.log(cropSize);
+    let padAmount;
+    let padDirection;
+    // console.log('bwidth:'+bWidth + 'bheight:'+bHeight);
+
+    if (bWidth > bHeight) {
+      padAmount = bWidth - bHeight;
+      padDirection = 'yyyyyy'
+    }
+    else if (bWidth < bHeight) {
+      padAmount = bHeight - bWidth;
+      padDirection = 'xxxxxxxxxxxxxxxxx'
+    }
+
+    // console.log(cropStartPoint);
+    // console.log(cropSize);
 
     let croppedTensor = tf.slice(imageTensor, cropStartPoint, cropSize);
-    console.log(croppedTensor);
+    // console.log(croppedTensor.shape);
 
-    let resizedTensor = tf.image.resizeBilinear(croppedTensor, [192, 192], true).toInt();
-    // let resizedTensor = tf.image.resizeBilinear(imageTensor, [192, 192], true).toInt();
+    let paddedTensor;
+    let resizedTensor;
+    
+    // console.log(padAmount + padDirection);
+
+    if (padDirection = 'x') {
+      paddedTensor = croppedTensor.pad([[0, padAmount], [0, 0], [0, 0]])
+    }
+    else if (padDirection = 'y') {
+      paddedTensor = croppedTensor.pad([[0, 0], [0, padAmount], [0, 0]])
+    }
+    else {
+      paddedTensor = croppedTensor
+    }
+
+    // console.log(paddedTensor.shape);
+    resizedTensor = tf.image.resizeBilinear(paddedTensor, [192, 192], true).toInt();
     // console.log(resizedTensor.shape);
 
     let tensorOutput = movenet.predict(tf.expandDims(resizedTensor));
     let arrayOutput = await tensorOutput.array();
-    console.log(arrayOutput);
+    // console.log(arrayOutput);
     sendPostRequest(arrayOutput);
     // tf.dispose(imageTensor);
     // tf.dispose(croppedTensor);
     // tf.dispose(resizedTensor);
     // tf.dispose(tensorOutput);
-    // tf.dispose(arrayOutput);
+    tf.dispose(arrayOutput);
     tf.engine().endScope();
     // predictWebcam().then(function(prediction) {
     //   console.log(prediction);
@@ -123,7 +151,6 @@ async function enableCam(event) {
   return new Promise((resolve) => {
     navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
       video.srcObject = stream;
-      resolve({ wWidth, wHeight });
     });
   });
   // // Activate the webcam stream.
