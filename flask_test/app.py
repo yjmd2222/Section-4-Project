@@ -1,8 +1,10 @@
+from flask_cors import CORS, cross_origin
 from flask import Flask, request, render_template
-from my_secrets import DB_HOST_NAME, DB_USER_NAME, DB_PASSWORD, DB_NAME
+from flask_test.my_secrets import DB_HOST_NAME, DB_USER_NAME, DB_PASSWORD, DB_NAME
 from flask_test.get_image_links import get_image_links
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/record_stream', methods=['GET'])
 def record_stream():
@@ -21,8 +23,8 @@ def image_get_endpoint():
     '''whatthefuck'''
     return 'post from image'
 
-@app.route('/stream-post-endpoint', methods=['POST'])
-def stream_post_endpoint():
+@app.route('/post-endpoint', methods=['POST'])
+def post_endpoint():
     '''
     automatic POST from javascript
     data preprocessed through MoveNet and sent

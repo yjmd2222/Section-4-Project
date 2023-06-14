@@ -1,5 +1,5 @@
 import requests
-from my_secrets import GOOGLE_CUSTOM_SEARCH_API_KEY, GOOGLE_CUSTOM_SEARCH_ENGINE_ID
+from flask_test.my_secrets import GOOGLE_CUSTOM_SEARCH_API_KEY, GOOGLE_CUSTOM_SEARCH_ENGINE_ID
 
 def get_image_links(query='correct sitting posture'):
     serachType = 'image'
@@ -17,3 +17,5 @@ def get_image_links(query='correct sitting posture'):
             except:
                 print('no link in result')
                 return None
+            
+get_image_links()

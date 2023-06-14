@@ -24,6 +24,10 @@ else {
   console.warn('getUserMedia() is not supported by your browser');
 }
 
+setInterval(function(){
+var imagePath = "https://storage.googleapis.com/jmstore/TensorFlowJS/EdX/standing.jpg";
+preprocessImage.src = imagePath;
+},1000)
 
 async function loadAndRunModel() {
   let  movenet = await tf.loadGraphModel(MODEL_PATH, {fromTFHub: true});
@@ -126,7 +130,7 @@ async function sendPostRequest(output) {
       movenet_output: output
   };
   // POST 요청을 보냅니다.
-  fetch('/images-post-endpoint', {
+  fetch('/post-endpoint', {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json'
