@@ -3,10 +3,15 @@ from my_secrets import DB_HOST_NAME, DB_USER_NAME, DB_PASSWORD, DB_NAME
 
 app = Flask(__name__)
 
-@app.route('/record_stream', methods= ['GET'])
+@app.route('/record_stream', methods=['GET'])
 def record_stream():
     'streaming video data recording page'
-    return render_template('index.html')
+    return render_template('stream.html')
+
+@app.route('/record_images', methods=['GET'])
+def record_images():
+    'image data recording page'
+    return render_template('images.html')
 
 @app.route('/post-endpoint', methods=['POST'])
 def post_endpoint():
