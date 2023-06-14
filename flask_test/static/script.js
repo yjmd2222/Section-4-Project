@@ -1,8 +1,3 @@
-const status = document.getElementById('status');
-if (status) {
-  status.innerText = 'Loaded TensorFlow.js - version: ' + tf.version.tfjs;
-}
-
 const MODEL_PATH = 'https://tfhub.dev/google/tfjs-model/movenet/singlepose/lightning/4';
 // const EXAMPLE_IMG = document.getElementById('exampleImg');
 
@@ -125,7 +120,7 @@ async function enableCam(event) {
 async function sendPostRequest(output) {
   // POST 요청을 보낼 데이터를 준비합니다.
   var data = {
-      key1: output
+      movenet_output: output
   };
   // POST 요청을 보냅니다.
   fetch('/post-endpoint', {
