@@ -123,7 +123,7 @@ async function sendPostRequest(output) {
       movenet_output: output
   };
   // POST 요청을 보냅니다.
-  fetch('/post-endpoint', {
+  fetch('/stream-post-endpoint', {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json'

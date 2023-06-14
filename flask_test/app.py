@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template
 from my_secrets import DB_HOST_NAME, DB_USER_NAME, DB_PASSWORD, DB_NAME
+from flask_test.get_image_links import get_image_links
 
 app = Flask(__name__)
 
@@ -11,10 +12,17 @@ def record_stream():
 @app.route('/record_images', methods=['GET'])
 def record_images():
     'image data recording page'
-    return render_template('images.html')
+    image_path = get_image_links()[0]
+    print(image_path)
+    return render_template('images.html', image_path=image_path)
 
-@app.route('/post-endpoint', methods=['POST'])
-def post_endpoint():
+@app.route('/image-get-endpoint', methods=['GET'])
+def image_get_endpoint():
+    '''whatthefuck'''
+    return 'post from image'
+
+@app.route('/stream-post-endpoint', methods=['POST'])
+def stream_post_endpoint():
     '''
     automatic POST from javascript
     data preprocessed through MoveNet and sent
@@ -72,7 +80,7 @@ def post_endpoint():
     cursor.close()
     connection.close()
 
-    return 'POST from javascript'
+    return 'POST from stream'
 
 if __name__ == '__main__':
     app.run(debug=True)
