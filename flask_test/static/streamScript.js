@@ -16,25 +16,22 @@ function getUserMediaSupported() {
 // If webcam supported, add event listener to button for when user
 // wants to activate it to call enableCam function which we will 
 // define in the next step.
-if (getUserMediaSupported()) {
-  enableWebcamButton.addEventListener('click', enableCam)
-  enableWebcamButton.addEventListener('click', loadAndRunModel)
-}
 // if (getUserMediaSupported()) {
-//   enableWebcamButton.addEventListener('click', function () {
-//     enableCam().then(({ wWidth, wHeight}) => { 
-//       loadAndRunModel(wWidth, wHeight);
-//     });
-//   });
+//   enableWebcamButton.addEventListener('click', enableCam)
+//   enableWebcamButton.addEventListener('click', loadAndRunModel)
 // }
+if (getUserMediaSupported()) {
+  enableWebcamButton.addEventListener('click', function (event) {
+    enableCam(event).then(({ wWidth, wHeight}) => { 
+      loadAndRunModel(wWidth, wHeight);
+    });
+  });
+}
 else {
   console.warn('getUserMedia() is not supported by your browser');
 }
 
-let wWidth;
-let wHeight;
-
-async function loadAndRunModel() {
+async function loadAndRunModel(wWidth, wHeight) {
   let  movenet = await tf.loadGraphModel(MODEL_PATH, {fromTFHub: true});
   let exampleInputTensor = tf.zeros([1, 192, 192, 3], 'int32');
   
@@ -55,8 +52,8 @@ async function loadAndRunModel() {
     let bHeight = parseInt(predictions.bbox[3]);
     if (bLeft < 0) {bLeft = 0};
     if (bTop < 0) {bTop = 0};
-    if (bLeft + bWidth > 1280) {bWidth = 1280};
-    if (bTop + bHeight > 720) {bWidth = 720};
+    if (bLeft + bWidth > wWidth) {bWidth = wWidth};
+    if (bTop + bHeight > wHeight) {bWidth = wHeight};
     let cropStartPoint = [bTop, bLeft, 0]; // red
     let cropSize = [bHeight, bWidth, 3] // all RGB
 
@@ -123,11 +120,18 @@ async function enableCam(event) {
   var d = document.getElementsByTagName('div');
   d[0].append(p);
 
-  // Activate the webcam stream.
-  navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
-    video.srcObject = stream;
-    // video.addEventListener('loadeddata', predictWebcam);
+  return new Promise((resolve) => {
+    navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
+      video.srcObject = stream;
+      resolve({ wWidth, wHeight });
+    });
   });
+  // // Activate the webcam stream.
+  // navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
+  //   video.srcObject = stream;
+  //   return stream.getVideoTracks()[0].getSettings();
+  //   // video.addEventListener('loadeddata', predictWebcam);
+  // });
 }
 
 // Store the resulting model in the global scope of our app.
