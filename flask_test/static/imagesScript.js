@@ -36,6 +36,8 @@ async function loadAndRunModel() {
   let cropStartPoint = [15, 170, 0];
   let cropSize = [345, 345, 3];
 
+  let image_index = 0;
+
   setInterval (async function(){
     
     var imagePath = "https://t1.daumcdn.net/cfile/tistory/9927E4455A6E154C17";

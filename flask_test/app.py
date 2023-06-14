@@ -21,7 +21,36 @@ def record_images():
 @app.route('/image-get-endpoint', methods=['GET'])
 def image_get_endpoint():
     '''whatthefuck'''
-    return 'post from image'
+    import psycopg2
+
+    # connection info
+    host = DB_HOST_NAME
+    user = DB_USER_NAME
+    password = DB_PASSWORD
+    database = DB_NAME
+
+    # conn
+    connection = psycopg2.connect(
+        host=host,
+        user=user,
+        password=password,
+        database=database
+    )
+
+    # cur
+    cursor = connection.cursor()
+
+    # look up table
+    sql_fetch_data = f'''
+    SELECT Link
+    FROM TABLE Links;
+    '''
+    cursor.execute(sql_fetch_data)
+
+    # get links
+    links = cursor.fetchall()
+
+    return render_template('images.html', links=links)
 
 @app.route('/post-endpoint', methods=['POST'])
 def post_endpoint():

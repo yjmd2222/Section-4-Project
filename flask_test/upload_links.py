@@ -23,7 +23,7 @@ cursor = connection.cursor()
 
 # create table
 sql_create_table = f'''
-CREATE TABLE IF NOT EXISTS links (
+CREATE TABLE IF NOT EXISTS Links (
     Id SERIAL PRIMARY KEY,
     Link VARCHAR(1000)
 )
@@ -31,9 +31,9 @@ CREATE TABLE IF NOT EXISTS links (
 cursor.execute(sql_create_table)
 
 sql_insert = f'''
-INSERT INTO links (Link) VALUES %s
+INSERT INTO Links (Link) VALUES %s
 '''
-cursor.executemany(sql_insert, links)
+cursor.executemany(sql_insert, links) # once
 
 # commit and close
 connection.commit()
