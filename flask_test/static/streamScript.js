@@ -24,7 +24,6 @@ else {
   console.warn('getUserMedia() is not supported by your browser');
 }
 
-
 async function loadAndRunModel() {
   let  movenet = await tf.loadGraphModel(MODEL_PATH, {fromTFHub: true});
   let exampleInputTensor = tf.zeros([1, 192, 192, 3], 'int32');
@@ -52,9 +51,9 @@ async function loadAndRunModel() {
     // tf.dispose(tensorOutput);
     // tf.dispose(arrayOutput);
     tf.engine().endScope();
+    predictWebcam();
 
   }, 1000);
-
 
 };
 
@@ -97,7 +96,7 @@ async function enableCam(event) {
   // Activate the webcam stream.
   navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
     video.srcObject = stream;
-    video.addEventListener('loadeddata', predictWebcam);
+    // video.addEventListener('loadeddata', predictWebcam);
   });
 }
 
@@ -117,6 +116,9 @@ cocoSsd.load().then(function (loadedModel) {
 
 var children = [];
 
+
+
+// display
 function predictWebcam() {
   // Now let's start classifying a frame in the stream.
   model.detect(video).then(function (predictions) {
@@ -151,10 +153,14 @@ function predictWebcam() {
         children.push(highlighter);
         children.push(p);
       }
+      // console.log(predictions[n])
+      
     }
     
     // Call this function again to keep predicting when the browser is ready.
-    window.requestAnimationFrame(predictWebcam);
+    // window.requestAnimationFrame(predictWebcam);
+    
+    
   });
 }
 
