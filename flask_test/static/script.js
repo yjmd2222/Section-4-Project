@@ -37,7 +37,7 @@ async function loadAndRunModel() {
   let cropStartPoint = [15, 170, 0];
   let cropSize = [345, 345, 3];
 
-  async function inner(){
+  setInterval (async function(){
 
     tf.engine().startScope();
     let imageTensor = tf.browser.fromPixels(video);
@@ -57,11 +57,8 @@ async function loadAndRunModel() {
     // tf.dispose(tensorOutput);
     // tf.dispose(arrayOutput);
     tf.engine().endScope();
-    // tf.tidy(inner);
-    inner();
 
-  }
-  inner();
+  }, 1000);
 
 
 };
