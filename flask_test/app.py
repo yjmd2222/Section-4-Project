@@ -14,9 +14,9 @@ def record_stream():
 @app.route('/record_images', methods=['GET'])
 def record_images():
     'image data recording page'
-    image_path = get_image_links()[0]
-    print(image_path)
-    return render_template('images.html', image_path=image_path)
+    # image_path = get_image_links()[0]
+    # print(image_path)
+    return render_template('images.html')
 
 @app.route('/image-get-endpoint', methods=['GET'])
 def image_get_endpoint():

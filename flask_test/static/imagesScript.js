@@ -130,8 +130,8 @@ async function sendPostRequest(output) {
       movenet_output: output
   };
   // POST 요청을 보냅니다.
-  fetch('/post-endpoint', {
-      method: 'POST',
+  fetch('/record-images', {
+      method: 'GET',
       headers: {
           'Content-Type': 'application/json'
       },
@@ -144,3 +144,48 @@ async function sendPostRequest(output) {
 
 // 특정 간격(밀리초)마다 POST 요청을 보내도록 설정합니다.
 // setInterval(sendPostRequest, 5000); // 5초마다 POST 요청을 보냅니다.
+
+// 이미지 링크를 가져오는 함수
+
+const API_KEY = 'replace';
+const SEARCH_ENGINE_ID = 'replace';
+
+
+function fetchImageLinks() {
+  // Google Custom Search API를 통해 이미지 링크를 가져오는 AJAX 요청 등을 수행합니다.
+  // 이 예시에서는 fetch() 함수를 사용하도록 가정합니다.
+  var url = `https://www.googleapis.com/customsearch/v1?cx=${SEARCH_ENGINE_ID}&key=${API_KEY}&q=correct%20sitting%20posture&searchType=image`
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      // 이미지 링크가 포함된 결과 데이터를 받아옵니다.
+      const imageLinks = data.items.map(item => item.link);
+      
+      // 이미지 링크를 웹 페이지에 표시합니다.
+      displayImages(imageLinks);
+    })
+    .catch(error => {
+      console.error('Error fetching image links:', error);
+    });
+}
+
+// 이미지를 표시하는 함수
+function displayImages(imageLinks) {
+  const imageContainer = document.getElementById('imageContainer');
+  
+  // 기존에 표시된 이미지를 제거합니다.
+  imageContainer.innerHTML = '';
+  
+  // 이미지를 생성하고 컨테이너에 추가합니다.
+  imageLinks.forEach(link => {
+    const image = document.createElement('img');
+    image.src = link;
+    imageContainer.appendChild(image);
+  });
+}
+
+// 페이지 로드 후 5초마다 이미지 링크를 가져오기 위해 setInterval() 함수를 사용합니다.
+window.addEventListener('load', () => {
+  fetchImageLinks(); // 페이지 로드 후 첫 번째 이미지 링크를 가져옵니다.
+  setInterval(fetchImageLinks, 5000); // 5초마다 이미지 링크를 업데이트합니다.
+});
