@@ -104,7 +104,6 @@ def record_post_endpoint():
     sql_insert = f'''
     INSERT INTO test ({', '.join(col_names).replace("'", '')}) VALUES {str(tuple([r'%s']*col_count_ex_id)).replace("'",'')}
     ''' # replace to delete quotes
-    print(sql_insert)
     cursor.execute(sql_insert, flatten)
 
     # commit and close

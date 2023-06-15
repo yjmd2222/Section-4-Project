@@ -31,7 +31,10 @@ else {
   console.warn('getUserMedia() is not supported by your browser');
 }
 
+let posture;
+
 async function loadAndRunModel() {
+  posture = document.getElementById('posture');
   let  movenet = await tf.loadGraphModel(MODEL_PATH, {fromTFHub: true});
   let exampleInputTensor = tf.zeros([1, 192, 192, 3], 'int32');
   
@@ -229,7 +232,8 @@ function predictWebcam() {
 async function sendPostRequest(output) {
   // POST 요청을 보낼 데이터를 준비합니다.
   var data = {
-      movenet_output: output
+      "movenet_output": output,
+      "posture": posture.value
   };
   // POST 요청을 보냅니다.
   fetch('/record-post-endpoint', {
