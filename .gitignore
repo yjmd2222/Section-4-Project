@@ -2,3 +2,5 @@ test.py
 my_secrets.py
 *__pycache__*
 test.html
+examples/
+movenet_thunder.tflite
