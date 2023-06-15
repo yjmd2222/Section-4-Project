@@ -1,5 +1,7 @@
+'''
+get image links and upload
+'''
 import requests
-import psycopg2
 
 from flask_test.helpers import get_connection
 from flask_test.my_secrets import (
