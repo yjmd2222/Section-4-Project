@@ -139,7 +139,7 @@ async function loadAndRunModel(event) {
     //   console.log(prediction);
     // });
 
-  }, 1000);
+  }, 10000);
 
 
 };
