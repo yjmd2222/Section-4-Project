@@ -1,8 +1,6 @@
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 from flask import Flask, request, render_template
-from flask_test.my_secrets import DB_HOST_NAME, DB_USER_NAME, DB_PASSWORD, DB_NAME
-from flask_test.get_image_links import get_image_links
-import json
+from flask_test.helpers import get_connection
 
 app = Flask(__name__)
 CORS(app)
@@ -31,7 +29,7 @@ def posture_post_endpoint():
 
     with open('my_model.pkl', 'rb') as file:
         model = pickle.load(file)
-    classes = {0: 'forward_head', 1: 'leaning', 2: 'normal'}
+    classes = {0: '거북목', 1: '등기댐', 2: '정상'}
 
     positions_output = request.json['movenet_output'] # 1, 1, 17, 3
     single_point = positions_output[0][0] # 17, 3
@@ -51,21 +49,7 @@ def record_post_endpoint():
     automatic POST from javascript
     data preprocessed through MoveNet and sent
     '''
-    import psycopg2
-
-    # connection info
-    host = DB_HOST_NAME
-    user = DB_USER_NAME
-    password = DB_PASSWORD
-    database = DB_NAME
-
-    # conn
-    connection = psycopg2.connect(
-        host=host,
-        user=user,
-        password=password,
-        database=database
-    )
+    connection = get_connection()
 
     # cur
     cursor = connection.cursor()
@@ -107,39 +91,39 @@ def record_post_endpoint():
 
     return 'POST from record'
 
-@app.route('/image-get-endpoint', methods=['GET'])
-def image_get_endpoint():
-    '''whatthefuck'''
-    import psycopg2
+# @app.route('/image-get-endpoint', methods=['GET'])
+# def image_get_endpoint():
+#     '''whatthefuck'''
+#     import psycopg2
 
-    # connection info
-    host = DB_HOST_NAME
-    user = DB_USER_NAME
-    password = DB_PASSWORD
-    database = DB_NAME
+#     # connection info
+#     host = DB_HOST_NAME
+#     user = DB_USER_NAME
+#     password = DB_PASSWORD
+#     database = DB_NAME
 
-    # conn
-    connection = psycopg2.connect(
-        host=host,
-        user=user,
-        password=password,
-        database=database
-    )
+#     # conn
+#     connection = psycopg2.connect(
+#         host=host,
+#         user=user,
+#         password=password,
+#         database=database
+#     )
 
-    # cur
-    cursor = connection.cursor()
+#     # cur
+#     cursor = connection.cursor()
 
-    # look up table
-    sql_fetch_data = f'''
-    SELECT Link
-    FROM TABLE Links;
-    '''
-    cursor.execute(sql_fetch_data)
+#     # look up table
+#     sql_fetch_data = f'''
+#     SELECT Link
+#     FROM TABLE Links;
+#     '''
+#     cursor.execute(sql_fetch_data)
 
-    # get links
-    links = cursor.fetchall()
+#     # get links
+#     links = cursor.fetchall()
 
-    return render_template('images.html', links=links)
+#     return render_template('images.html', links=links)
 
 
 if __name__ == '__main__':
