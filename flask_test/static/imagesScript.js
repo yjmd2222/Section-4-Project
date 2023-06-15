@@ -36,13 +36,14 @@ else {
 // variable for looping through image links
 let n = 0; 
 
-async function loadAndRunModel() {
+async function loadAndRunModel(event) {
   let  movenet = await tf.loadGraphModel(MODEL_PATH, {fromTFHub: true});
   let exampleInputTensor = tf.zeros([1, 192, 192, 3], 'int32');
 
+  event.target.classList.add('removed');
+  demosSection.classList.remove('invisible');
 
   setInterval (async function(){
-    console.log(links[n]);
     n++;
     
     // var imagePath = "https://storage.googleapis.com/jmstore/TensorFlowJS/EdX/standing.jpg";//"https://t1.daumcdn.net/cfile/tistory/9927E4455A6E154C17";
@@ -54,6 +55,8 @@ async function loadAndRunModel() {
 
     let predictions = await predictImage();
     let imageTensor = tf.browser.fromPixels(preprocessImage);
+    console.log(predictions);
+    console.log(imageTensor.shape)
     const [wHeight, wWidth] = imageTensor.shape;
 
 
