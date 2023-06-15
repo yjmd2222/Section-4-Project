@@ -13,20 +13,21 @@
 
     <p>Wait for the model to load before clicking the button to enable the webcam - at which point it will become visible to use.</p>
     
-    <section id="images">
-      <p>Section for images</p>
-      <!-- <img id="exImage" width="640" height="360" crossorigin src="https://storage.googleapis.com/jmstore/TensorFlowJS/EdX/standing.jpg"/> -->
-      <!-- https://cdn-prod.medicalnewstoday.com/content/images/articles/321/321863/correct-sitting-posture-diagram-at-a-computer-desk.jpg -->
-      <img id="preprocessImage" width="640" height="360" src="https://cdn-prod.medicalnewstoday.com/content/images/articles/321/321863/correct-sitting-posture-diagram-at-a-computer-desk.jpg"/>
-    </section>
+
 
     <section id="demos">
 
       <p>Hold some objects up close to your webcam to get a real-time classification! When ready click "enable webcam" below and accept access to the webcam when the browser asks (check the top left of your window)</p>
       
-      <div id="liveView" class="camView">
+      <div id="staticView" class="imageView">
         <button id="startButton">Start Preprocessing Images</button>
-        <video id="webcam" autoplay muted width="1280" height="720"></video>
+        <!-- <section id="images"> -->
+          <!-- <p>Section for images</p> -->
+          <!-- <img id="exImage" width="640" height="360" crossorigin src="https://storage.googleapis.com/jmstore/TensorFlowJS/EdX/standing.jpg"/> -->
+          <!-- https://cdn-prod.medicalnewstoday.com/content/images/articles/321/321863/correct-sitting-posture-diagram-at-a-computer-desk.jpg -->
+          <!-- <img id="preprocessImage" src="https://cdn-prod.medicalnewstoday.com/content/images/articles/321/321863/correct-sitting-posture-diagram-at-a-computer-desk.jpg"/> -->
+          <img id="preprocessImage" src="/static/do.png"/>
+        <!-- </section> -->
       </div>
     </section>
 
