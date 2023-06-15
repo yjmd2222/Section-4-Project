@@ -51,8 +51,8 @@ def image_get_endpoint():
 
     return render_template('images.html', links=links)
 
-@app.route('/post-endpoint', methods=['POST'])
-def post_endpoint():
+@app.route('/record-post-endpoint', methods=['POST'])
+def record_post_endpoint():
     '''
     automatic POST from javascript
     data preprocessed through MoveNet and sent
