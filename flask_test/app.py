@@ -10,46 +10,40 @@ CORS(app)
 @app.route('/record_stream', methods=['GET'])
 def record_stream():
     'streaming video data recording page'
-    return render_template('stream.html')
+    return render_template('recordStream.html')
 
 @app.route('/record_images', methods=['GET'])
 def record_images():
+    'image data recording page'
     links = 'will have links'.split() * 100
-    return render_template('images.html', links=links)
+    return render_template('recordImages.html', links=links)
 
-@app.route('/image-get-endpoint', methods=['GET'])
-def image_get_endpoint():
-    '''whatthefuck'''
-    import psycopg2
+@app.route('/posture', methods=['GET'])
+def your_posture():
+    'model demo'
+    return render_template('posture.html')
 
-    # connection info
-    host = DB_HOST_NAME
-    user = DB_USER_NAME
-    password = DB_PASSWORD
-    database = DB_NAME
+@app.route('/posture-post-endpoint', methods=['POST'])
+def posture_post_endpoint():
+    'get data from /posture'
+    import pickle
+    import numpy as np
 
-    # conn
-    connection = psycopg2.connect(
-        host=host,
-        user=user,
-        password=password,
-        database=database
-    )
+    with open('my_model.pkl', 'rb') as file:
+        model = pickle.load(file)
+    classes = {0: 'forward_head', 1: 'leaning', 2: 'normal'}
 
-    # cur
-    cursor = connection.cursor()
+    positions_output = request.json['movenet_output'] # 1, 1, 17, 3
+    single_point = positions_output[0][0] # 17, 3
+    y_point = [row[0] for row in single_point]
+    x_point = [row[1] for row in single_point]
+    flatten = y_point + x_point
+    # flatten_batch_of_one = [flatten] # Tensorflow expects additional dimension from batch
 
-    # look up table
-    sql_fetch_data = f'''
-    SELECT Link
-    FROM TABLE Links;
-    '''
-    cursor.execute(sql_fetch_data)
+    y_pred = model.predict([flatten])
+    y_pred_label = classes[np.argmax(y_pred)] # axes are stupid
 
-    # get links
-    links = cursor.fetchall()
-
-    return render_template('images.html', links=links)
+    return str(y_pred_label)
 
 @app.route('/record-post-endpoint', methods=['POST'])
 def record_post_endpoint():
@@ -100,18 +94,53 @@ def record_post_endpoint():
     y_point = [row[0] for row in single_point]
     x_point = [row[1] for row in single_point]
     posture_input = request.json['posture']
-    flatten = y_point + x_point + [posture_input]
+    flatten_and_y = y_point + x_point + [posture_input]
     sql_insert = f'''
     INSERT INTO test ({', '.join(col_names).replace("'", '')}) VALUES {str(tuple([r'%s']*col_count_ex_id)).replace("'",'')}
     ''' # replace to delete quotes
-    cursor.execute(sql_insert, flatten)
+    cursor.execute(sql_insert, flatten_and_y)
 
     # commit and close
     connection.commit()
     cursor.close()
     connection.close()
 
-    return 'POST from stream'
+    return 'POST from record'
+
+@app.route('/image-get-endpoint', methods=['GET'])
+def image_get_endpoint():
+    '''whatthefuck'''
+    import psycopg2
+
+    # connection info
+    host = DB_HOST_NAME
+    user = DB_USER_NAME
+    password = DB_PASSWORD
+    database = DB_NAME
+
+    # conn
+    connection = psycopg2.connect(
+        host=host,
+        user=user,
+        password=password,
+        database=database
+    )
+
+    # cur
+    cursor = connection.cursor()
+
+    # look up table
+    sql_fetch_data = f'''
+    SELECT Link
+    FROM TABLE Links;
+    '''
+    cursor.execute(sql_fetch_data)
+
+    # get links
+    links = cursor.fetchall()
+
+    return render_template('images.html', links=links)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
