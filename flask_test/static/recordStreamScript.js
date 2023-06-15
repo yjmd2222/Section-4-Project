@@ -85,11 +85,11 @@ async function loadAndRunModel() {
     
     // console.log(padAmount + padDirection);
 
-    if (padDirection = 'x') {
+    if (padDirection == 'x') {
       paddedTensor = croppedTensor.pad([[0, padAmount], [0, 0], [0, 0]])
     }
     else if (padDirection = 'y') {
-      paddedTensor = croppedTensor.pad([[0, 0], [0, padAmount], [0, 0]])
+      paddedTensor == croppedTensor.pad([[0, 0], [0, padAmount], [0, 0]])
     }
     else {
       paddedTensor = croppedTensor

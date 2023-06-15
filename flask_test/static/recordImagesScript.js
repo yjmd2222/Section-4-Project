@@ -49,17 +49,28 @@ async function loadAndRunModel(event) {
   setInterval (async function(){
     n++;
     
-    // var imagePath = "https://storage.googleapis.com/jmstore/TensorFlowJS/EdX/standing.jpg";//"https://t1.daumcdn.net/cfile/tistory/9927E4455A6E154C17";
-    var imagePath = "/static/do.png"
+    var imagePath = "https://storage.googleapis.com/jmstore/TensorFlowJS/EdX/standing.jpg";//"https://t1.daumcdn.net/cfile/tistory/9927E4455A6E154C17";
+    // var imagePath = "/static/do.png"
     // var imagePath = links[n];
     preprocessImage.src = imagePath;
     
     tf.engine().startScope();
 
-    let predictions = await predictImage();
+    let predictionsArray = await predictImage();
+    
+    let predictions;
+
+    for (let i = 0; i < predictionsArray.length; i++) {
+      if (predictionsArray[i]['class'] == "person") {
+        predictions = predictionsArray[i];
+        break;
+      }
+    }
+    if (predictions == undefined) {
+      return
+    }
+
     let imageTensor = tf.browser.fromPixels(preprocessImage);
-    console.log(predictions);
-    console.log(imageTensor.shape)
     const [wHeight, wWidth] = imageTensor.shape;
 
 
@@ -100,10 +111,10 @@ async function loadAndRunModel(event) {
     
     // console.log(padAmount + padDirection);
 
-    if (padDirection = 'x') {
+    if (padDirection == 'x') {
       paddedTensor = croppedTensor.pad([[0, padAmount], [0, 0], [0, 0]])
     }
-    else if (padDirection = 'y') {
+    else if (padDirection == 'y') {
       paddedTensor = croppedTensor.pad([[0, 0], [0, padAmount], [0, 0]])
     }
     else {
@@ -207,6 +218,8 @@ function predictImage() {
       // Now lets loop through predictions and draw them to the live view if
       // they have a high confidence score.
       for (let n = 0; n < predictions.length; n++) {
+        // if (predictions[n].class == "person") {
+
         // If we are over 66% sure we are sure we classified it right, draw it!
         if (predictions[n].score > 0.66) {
           const p = document.createElement('p');
@@ -230,7 +243,7 @@ function predictImage() {
           children.push(p);
 
           // Resolve the promise with the current prediction
-          resolve(predictions[n]);
+          resolve(predictions);
         }
       }
     });
