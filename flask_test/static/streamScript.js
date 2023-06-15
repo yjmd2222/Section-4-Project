@@ -49,10 +49,11 @@ async function loadAndRunModel() {
     let bTop = parseInt(predictions.bbox[1]);
     let bWidth = parseInt(predictions.bbox[2]);
     let bHeight = parseInt(predictions.bbox[3]);
-    if (bWidth > wWidth) {bWidth = wWidth - bLeft};
-    if (bHeight > wHeight) {bHeight = wHeight - bTop};
-    if (bLeft < 0) {bLeft = 0};
-    if (bTop < 0) {bTop = 0};
+    if (bWidth > wWidth) {bWidth = wWidth - bLeft}; // right of the image
+    if (bHeight > wHeight) {bHeight = wHeight - bTop}; // bottom of the image
+    if (bLeft < 0) {bLeft = 0}; // left of the image
+    if (bTop < 0) {bTop = 0}; // top
+    if (bHeight - bTop > bWidth - bLeft) {bHeight = bWidth}; // if height > width, cut the height from bottom
     let cropStartPoint = [bTop, bLeft, 0]; // red
     let cropSize = [bHeight, bWidth, 3] // all RGB
     // console.log(predictions)
@@ -62,7 +63,7 @@ async function loadAndRunModel() {
     // console.log('bwidth:'+bWidth + 'bheight:'+bHeight);
 
     if (bWidth > bHeight) {
-      padAmount = bWidth - bHeight;
+      padAmount = bWidth - bHeight; // most likely not needed
       padDirection = 'yyyyyy'
     }
     else if (bWidth < bHeight) {
