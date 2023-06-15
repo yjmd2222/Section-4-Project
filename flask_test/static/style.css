@@ -35,7 +35,7 @@ section {
   opacity: 0.2;
 }
 
-.camView {
+.view {
   position: relative;
   float: left;
   width: calc(100% - 20px);
@@ -43,7 +43,7 @@ section {
   cursor: pointer;
 }
 
-.camView p {
+.view p {
   position: absolute;
   padding: 5px;
   background-color: rgba(255, 111, 0, 0.85);

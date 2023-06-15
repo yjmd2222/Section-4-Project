@@ -2,7 +2,7 @@ const MODEL_PATH = 'https://tfhub.dev/google/tfjs-model/movenet/singlepose/light
 // const EXAMPLE_IMG = document.getElementById('exampleImg');
 
 const video = document.getElementById('webcam');
-const liveView = document.getElementById('liveView');
+const liveView = document.getElementById('view');
 const demosSection = document.getElementById('demos');
 const enableWebcamButton = document.getElementById('webcamButton');
 
