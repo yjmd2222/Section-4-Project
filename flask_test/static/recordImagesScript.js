@@ -36,7 +36,10 @@ else {
 // variable for looping through image links
 let n = 0; 
 
+let posture;
+
 async function loadAndRunModel(event) {
+  posture = document.getElementById('posture');
   let  movenet = await tf.loadGraphModel(MODEL_PATH, {fromTFHub: true});
   let exampleInputTensor = tf.zeros([1, 192, 192, 3], 'int32');
 
@@ -239,7 +242,8 @@ function predictImage() {
 async function sendPostRequest(output) {
   // POST 요청을 보낼 데이터를 준비합니다.
   var data = {
-      movenet_output: output
+      "movenet_output": output,
+      "posture": posture.value
   };
   // POST 요청을 보냅니다.
   fetch('/record-post-endpoint', {
