@@ -2,7 +2,7 @@ const MODEL_PATH = 'https://tfhub.dev/google/tfjs-model/movenet/singlepose/light
 const preprocessImage = document.getElementById('preprocessImage');
 
 // const video = document.getElementById('images');
-const staticView = document.getElementById('staticView');
+const staticView = document.getElementById('view');
 const demosSection = document.getElementById('demos');
 const startPreprocessingButton = document.getElementById('startButton');
 
