@@ -6,6 +6,8 @@ const liveView = document.getElementById('view');
 const demosSection = document.getElementById('demos');
 const enableWebcamButton = document.getElementById('webcamButton');
 
+const resultElement = document.getElementById('result')
+
 // Check if webcam access is supported.
 function getUserMediaSupported() {
   return !!(navigator.mediaDevices &&
@@ -138,17 +140,17 @@ async function enableCam(event) {
   let settings = display.getVideoTracks()[0]
       .getSettings();
 
-  let wWidth = settings.width;
-  let wHeight = settings.height;
+  // let wWidth = settings.width;
+  // let wHeight = settings.height;
 
-  console.log('Actual width of the camera video: '
-      + wWidth + 'px');
-  console.log('Actual height of the camera video:'
-      + wHeight + 'px');
-  const p = document.createElement('p');
-  p.innerText = wWidth + 'X' + wHeight;
-  var d = document.getElementsByTagName('div');
-  d[0].append(p);
+  // console.log('Actual width of the camera video: '
+  //     + wWidth + 'px');
+  // console.log('Actual height of the camera video:'
+  //     + wHeight + 'px');
+  // const p = document.createElement('p');
+  // p.innerText = wWidth + 'X' + wHeight;
+  // var d = document.getElementsByTagName('div');
+  // d[0].append(p);
 
   return new Promise((resolve) => {
     navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
@@ -230,19 +232,29 @@ function predictWebcam() {
 async function sendPostRequest(output) {
   // POST 요청을 보낼 데이터를 준비합니다.
   var data = {
-      "movenet_output": output
+    "movenet_output": output
   };
-  // POST 요청을 보냅니다.
-  fetch('/posture-post-endpoint', {
+
+  try {
+    // POST 요청을 보냅니다.
+    const response = await fetch('/posture-post-endpoint', {
       method: 'POST',
       headers: {
-          'Content-Type': 'application/json'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(data)
-  })
-  .then(response => response.text())
-  .then(result => console.log(result))
-  .catch(error => console.error(error));
+    });
+
+    // 응답을 텍스트 형식으로 변환합니다.
+    const result = await response.text();
+
+    // 결과를 웹페이지에 표시합니다.
+    const resultElement = document.getElementById('result');
+    resultElement.textContent = result;
+  } catch (error) {
+    // 에러를 처리합니다.
+    console.error(error);
+  }
 }
 
 // 특정 간격(밀리초)마다 POST 요청을 보내도록 설정합니다.
