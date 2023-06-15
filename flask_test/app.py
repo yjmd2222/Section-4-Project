@@ -2,6 +2,7 @@ from flask_cors import CORS, cross_origin
 from flask import Flask, request, render_template
 from flask_test.my_secrets import DB_HOST_NAME, DB_USER_NAME, DB_PASSWORD, DB_NAME
 from flask_test.get_image_links import get_image_links
+import json
 
 app = Flask(__name__)
 CORS(app)
@@ -13,10 +14,8 @@ def record_stream():
 
 @app.route('/record_images', methods=['GET'])
 def record_images():
-    'image data recording page'
-    # image_path = get_image_links()[0]
-    # print(image_path)
-    return render_template('images.html')
+    links = 'will have links'.split() * 100
+    return render_template('images.html', links=links)
 
 @app.route('/image-get-endpoint', methods=['GET'])
 def image_get_endpoint():
