@@ -6,8 +6,8 @@ import pickle
 import numpy as np
 
 # too slow
-with open(r'static/my_model.pkl', 'rb') as file:
-    model = pickle.load(file)
+# with open(r'static/my_model.pkl', 'rb') as file:
+#     model = pickle.load(file)
 classes = {0: '거북목', 1: '등기댐', 2: '정상'}
 
 app = Flask(__name__)
@@ -40,23 +40,23 @@ def your_posture():
     'model demo'
     return render_template('posture.html', classes=classes)
 
-@app.route('/posture-post-endpoint', methods=['POST'])
-def posture_post_endpoint():
-    'get data from /posture'
-    # with open('my_model.pkl', 'rb') as file: # too slow to load at every POST
-    #     model = pickle.load(file)
-    # classes = {0: '거북목', 1: '등기댐', 2: '정상'}
-    positions_output = request.json['movenet_output'] # 1, 1, 17, 3
-    single_point = positions_output[0][0] # 17, 3
-    y_point = [row[0] for row in single_point]
-    x_point = [row[1] for row in single_point]
-    flatten = y_point + x_point
-    # flatten_batch_of_one = [flatten] # Tensorflow expects additional dimension from batch
+# @app.route('/posture-post-endpoint', methods=['POST'])
+# def posture_post_endpoint():
+#     'get data from /posture'
+#     # with open('my_model.pkl', 'rb') as file: # too slow to load at every POST
+#     #     model = pickle.load(file)
+#     # classes = {0: '거북목', 1: '등기댐', 2: '정상'}
+#     positions_output = request.json['movenet_output'] # 1, 1, 17, 3
+#     single_point = positions_output[0][0] # 17, 3
+#     y_point = [row[0] for row in single_point]
+#     x_point = [row[1] for row in single_point]
+#     flatten = y_point + x_point
+#     # flatten_batch_of_one = [flatten] # Tensorflow expects additional dimension from batch
 
-    y_pred = model.predict([flatten])
-    y_pred_label = classes[np.argmax(y_pred)] # axes are stupid
+#     y_pred = model.predict([flatten])
+#     y_pred_label = classes[np.argmax(y_pred)] # axes are stupid
 
-    return str(y_pred_label)
+#     return str(y_pred_label)
 
 @app.route('/record-post-endpoint', methods=['POST'])
 def record_post_endpoint():
