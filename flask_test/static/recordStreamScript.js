@@ -233,7 +233,8 @@ async function sendPostRequest(output) {
   // POST 요청을 보낼 데이터를 준비합니다.
   var data = {
       "movenet_output": output,
-      "posture": posture.value
+      "posture": posture.value,
+      "location": 'stream'
   };
   // POST 요청을 보냅니다.
   fetch('/record-post-endpoint', {
