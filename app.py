@@ -38,7 +38,7 @@ def record_images():
 @app.route('/posture', methods=['GET'])
 def your_posture():
     'model demo'
-    return render_template('posture.html')
+    return render_template('posture.html', classes=classes)
 
 @app.route('/posture-post-endpoint', methods=['POST'])
 def posture_post_endpoint():
