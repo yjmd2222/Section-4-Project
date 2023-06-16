@@ -4,4 +4,4 @@ flask-cors==3.0.10
 # tensorflow==2.11.0 # 모델 만들때만 사용
 # numpy==1.21.6 # 모델 만들때만 사용
 gunicorn==19.7.1
-python-dotenv=1.0.0
+python-dotenv==1.0.0
