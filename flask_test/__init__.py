@@ -73,9 +73,9 @@ def record_post_endpoint():
     col_names = 'nose, left eye, right eye, left ear, right ear, left shoulder, right shoulder, left elbow, right elbow, left wrist, right wrist, left hip, right hip, left knee, right knee, left ankle, right ankle'
     col_names = col_names.split(sep=', ') # list has original col names
     col_names = [i.replace(' ', '_') for i in col_names] # underscore for blank
-    col_names = [col+i for col in col_names for i in ('_y', '_x')] + ['posture'] # y,x coords for each col. tf lists y coords first
-    col_names_and_types = [i + ' FLOAT,' for i in col_names[:-1]] + [col_names[-1] + ' VARCHAR(20),'] # sql FLOAT for all cols. posture at the end
-    cols_string = '\n    '.join(col_names_and_types)[:-1] # exclude comma at end
+    col_names = [col+i for col in col_names for i in ('_y', '_x')] + ['posture', 'location'] # y,x coords for each col. tf lists y coords first
+    col_names_and_types = [i + ' FLOAT,' for i in col_names[:-2]] + [col_names[-2]+' VARCHAR(20),',  col_names[-1]+' VARCHAR(1000)'] # sql FLOAT for all cols. posture at the end
+    cols_string = '\n    '.join(col_names_and_types)
     col_count_ex_id = len(col_names_and_types)
 
     # create table
@@ -93,7 +93,8 @@ def record_post_endpoint():
     y_point = [row[0] for row in single_point]
     x_point = [row[1] for row in single_point]
     posture_input = request.json['posture']
-    flatten_and_y = y_point + x_point + [posture_input]
+    location = request.json['location']
+    flatten_and_y = y_point + x_point + [posture_input, location]
     sql_insert = f'''
     INSERT INTO movenet_output ({', '.join(col_names).replace("'", '')}) VALUES {str(tuple([r'%s']*col_count_ex_id)).replace("'",'')}
     ''' # replace to delete quotes

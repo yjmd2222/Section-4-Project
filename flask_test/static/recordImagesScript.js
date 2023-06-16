@@ -126,7 +126,7 @@ async function loadAndRunModel(event) {
 
       let tensorOutput = movenet.predict(tf.expandDims(resizedTensor));
       let arrayOutput = await tensorOutput.array();
-      sendPostRequest(arrayOutput);
+      sendPostRequest(arrayOutput, imagePath);
 
       tf.dispose(imageTensor);
       tf.dispose(croppedTensor);
@@ -251,11 +251,12 @@ function predictImage() {
 
 
 // 주기적으로 POST 요청을 보내는 함수
-async function sendPostRequest(output) {
+async function sendPostRequest(output, receivedImagePath) {
   // POST 요청을 보낼 데이터를 준비합니다.
   var data = {
       "movenet_output": output,
-      "posture": posture
+      "posture": posture,
+      "location": receivedImagePath
   };
   // POST 요청을 보냅니다.
   fetch('/record-post-endpoint', {
