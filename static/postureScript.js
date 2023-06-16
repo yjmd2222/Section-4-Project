@@ -122,8 +122,11 @@ async function loadAndRunModel() {
     let classifierProbas = classifierOutput.arraySync()[0];
     let max = Math.max(...classifierProbas);
     let yourPosture = classes[classifierProbas.indexOf(max)];
-    console.log(yourPosture);
-    
+    // console.log(yourPosture);
+    resultElement.textContent = yourPosture;
+    if (yourPosture != '정상') {
+      playBeep()
+    }
 
     // console.log(arrayOutput);
     // sendPostRequest(arrayOutput);
