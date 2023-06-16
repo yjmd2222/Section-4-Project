@@ -1,13 +1,13 @@
 from flask_cors import CORS
 from flask import Flask, request, render_template, jsonify
-from flask_test.helpers import get_connection
+from helpers import get_connection
 
 import pickle
 import numpy as np
 
 # too slow
-with open(r'flask_test\static\my_model.pkl', 'rb') as file:
-    model = pickle.load(file)
+# with open(r'static/my_model.pkl', 'rb') as file:
+#     model = pickle.load(file)
 classes = {0: '거북목', 1: '등기댐', 2: '정상'}
 
 app = Flask(__name__)
@@ -38,25 +38,25 @@ def record_images():
 @app.route('/posture', methods=['GET'])
 def your_posture():
     'model demo'
-    return render_template('posture.html')
+    return render_template('posture.html', classes=classes)
 
-@app.route('/posture-post-endpoint', methods=['POST'])
-def posture_post_endpoint():
-    'get data from /posture'
-    # with open('my_model.pkl', 'rb') as file: # too slow to load at every POST
-    #     model = pickle.load(file)
-    # classes = {0: '거북목', 1: '등기댐', 2: '정상'}
-    positions_output = request.json['movenet_output'] # 1, 1, 17, 3
-    single_point = positions_output[0][0] # 17, 3
-    y_point = [row[0] for row in single_point]
-    x_point = [row[1] for row in single_point]
-    flatten = y_point + x_point
-    # flatten_batch_of_one = [flatten] # Tensorflow expects additional dimension from batch
+# @app.route('/posture-post-endpoint', methods=['POST'])
+# def posture_post_endpoint():
+#     'get data from /posture'
+#     # with open('my_model.pkl', 'rb') as file: # too slow to load at every POST
+#     #     model = pickle.load(file)
+#     # classes = {0: '거북목', 1: '등기댐', 2: '정상'}
+#     positions_output = request.json['movenet_output'] # 1, 1, 17, 3
+#     single_point = positions_output[0][0] # 17, 3
+#     y_point = [row[0] for row in single_point]
+#     x_point = [row[1] for row in single_point]
+#     flatten = y_point + x_point
+#     # flatten_batch_of_one = [flatten] # Tensorflow expects additional dimension from batch
 
-    y_pred = model.predict([flatten])
-    y_pred_label = classes[np.argmax(y_pred)] # axes are stupid
+#     y_pred = model.predict([flatten])
+#     y_pred_label = classes[np.argmax(y_pred)] # axes are stupid
 
-    return str(y_pred_label)
+#     return str(y_pred_label)
 
 @app.route('/record-post-endpoint', methods=['POST'])
 def record_post_endpoint():
@@ -88,17 +88,19 @@ def record_post_endpoint():
     cursor.execute(sql_create_table)
 
     # insert data
-    positions_output = request.json['movenet_output'] # 1, 1, 17, 3
-    single_point = positions_output[0][0] # 17, 3
-    y_point = [row[0] for row in single_point]
-    x_point = [row[1] for row in single_point]
+    movenet_output = request.json['movenet_output'] # 17, 3 or 1, 17, 3
     posture_input = request.json['posture']
     location = request.json['location']
-    flatten_and_y = y_point + x_point + [posture_input, location]
+    point_y_list = []
+    if len(movenet_output) != 1: # if not bulk which is 17, 3
+        movenet_output = [movenet_output] # make it bulk 1, 17, 3
+    for single_point in movenet_output: # for 17, 3 in 1, 17, 3
+        single_point_y = single_point + [posture_input, location]
+        point_y_list.append(single_point_y)
     sql_insert = f'''
     INSERT INTO movenet_output ({', '.join(col_names).replace("'", '')}) VALUES {str(tuple([r'%s']*col_count_ex_id)).replace("'",'')}
     ''' # replace to delete quotes
-    cursor.execute(sql_insert, flatten_and_y)
+    cursor.executemany(sql_insert, point_y_list)
 
     # commit and close
     connection.commit()
