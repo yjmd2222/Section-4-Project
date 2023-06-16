@@ -126,13 +126,24 @@ async function loadAndRunModel(event) {
 
       let tensorOutput = movenet.predict(tf.expandDims(resizedTensor));
       let arrayOutput = await tensorOutput.array();
-      sendPostRequest(arrayOutput, imagePath);
+      const singlePoint = arrayOutput[0][0]; // 17, 3
 
-      tf.dispose(imageTensor);
-      tf.dispose(croppedTensor);
-      tf.dispose(resizedTensor);
-      tf.dispose(tensorOutput);
-      tf.dispose(arrayOutput);
+    const yPoint = singlePoint.map(row => row[0]);
+    const xPoint = singlePoint.map(row => row[1]);
+
+    // const flatten = [...yPoint, ...xPoint];
+
+    const flatten = [];
+    for (let i = 0; i < yPoint.length; i++) {
+      flatten.push(yPoint[i], xPoint[i]);
+    }
+    sendPostRequest(flatten, imagePath);
+
+      // tf.dispose(imageTensor);
+      // tf.dispose(croppedTensor);
+      // tf.dispose(resizedTensor);
+      // tf.dispose(tensorOutput);
+      // tf.dispose(arrayOutput);
       tf.engine().endScope();
     }
   if (n == link_data.length ){
