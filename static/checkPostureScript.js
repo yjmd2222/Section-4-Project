@@ -15,7 +15,6 @@ function getUserMediaSupported() {
     navigator.mediaDevices.getUserMedia);
 }
 
-
 // If webcam supported, add event listener to button for when user
 // wants to activate it to call enableCam function which we will 
 // define in the next step.
@@ -127,9 +126,10 @@ async function loadAndRunModel() {
     if (yourPosture != '정상') {
       playBeep()
     }
+    
 
     // console.log(arrayOutput);
-    // sendPostRequest(arrayOutput);
+    sendPostRequest(flatten, yourPosture, classifierProbas, Date.now());
     // tf.dispose(imageTensor);
     // tf.dispose(croppedTensor);
     // tf.dispose(resizedTensor);
@@ -256,15 +256,19 @@ function predictWebcam() {
 
 
 // 주기적으로 POST 요청을 보내는 함수
-async function sendPostRequest(output) {
+async function sendPostRequest(output, posture, probas, currentTime) {
   // POST 요청을 보낼 데이터를 준비합니다.
   var data = {
-    "movenet_output": output
+    "movenet_output": output,
+    "predictedPosture": posture,
+    "probas": probas,
+    "timestamp": currentTime
+
   };
 
   try {
     // POST 요청을 보냅니다.
-    const response = await fetch('/posture-post-endpoint', {
+    const response = await fetch('/check-posture-post-endpoint', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -273,12 +277,12 @@ async function sendPostRequest(output) {
     });
 
     // 응답을 텍스트 형식으로 변환합니다.
-    const result = await response.text();
-    if (result != '정상') {playBeep()}
+    // const result = await response.text();
+    // if (result != '정상') {playBeep()}
 
     // 결과를 웹페이지에 표시합니다.
-    const resultElement = document.getElementById('result');
-    resultElement.textContent = result;
+    // const resultElement = document.getElementById('result');
+    // resultElement.textContent = result;
   } catch (error) {
     // 에러를 처리합니다.
     console.error(error);
