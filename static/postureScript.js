@@ -108,7 +108,14 @@ async function loadAndRunModel() {
     const yPoint = singlePoint.map(row => row[0]);
     const xPoint = singlePoint.map(row => row[1]);
 
-    const flatten = [...yPoint, ...xPoint];
+    // const flatten = [...yPoint, ...xPoint];
+
+    const flatten = [];
+    for (let i = 0; i < yPoint.length; i++) {
+      flatten.push(yPoint[i], xPoint[i]);
+    }
+
+    console.log(flatten)
     const xyTensor = tf.tensor(flatten, [1, flatten.length]);
     // console.log(tensor.shape)
     let classifierOutput = await classifier.predict(xyTensor);

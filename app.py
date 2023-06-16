@@ -98,7 +98,7 @@ def record_post_endpoint():
         inner_data = single_point[0][0] # 17, 3
         y_point = [row[0] for row in inner_data]
         x_point = [row[1] for row in inner_data]
-        flatten_and_y = y_point + x_point + [posture_input, location]
+        flatten_and_y = [i for pair in zip(y_point, x_point) for i in pair] + [posture_input, location]
         flatten_and_y_list.append(flatten_and_y)
     sql_insert = f'''
     INSERT INTO movenet_output ({', '.join(col_names).replace("'", '')}) VALUES {str(tuple([r'%s']*col_count_ex_id)).replace("'",'')}
