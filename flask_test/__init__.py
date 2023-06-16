@@ -1,5 +1,5 @@
 from flask_cors import CORS
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 from flask_test.helpers import get_connection
 
 import pickle
@@ -21,8 +21,19 @@ def record_stream():
 @app.route('/record_images', methods=['GET'])
 def record_images():
     'image data recording page'
-    links = 'will have links'.split() * 100
-    return render_template('recordImages.html', links=links)
+    # init connection
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    # fetch data
+    sql_fetch_data = '''
+    SELECT *
+    FROM links
+    '''
+    cursor.execute(sql_fetch_data)
+    link_data = cursor.fetchall()
+
+    return render_template('recordImages.html', link_data=link_data)
 
 @app.route('/posture', methods=['GET'])
 def your_posture():

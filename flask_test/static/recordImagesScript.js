@@ -6,9 +6,7 @@ const staticView = document.getElementById('view');
 const demosSection = document.getElementById('demos');
 const startPreprocessingButton = document.getElementById('startButton');
 
-
-console.log(links);
-
+console.log(link_data)
 
 // Check if webcam access is supported.
 function getUserMediaSupported() {
@@ -29,8 +27,8 @@ else {
 }
 
 // setInterval(function(){
-var imagePath = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSntGBtyPrAp9ZjJoprI9W2g8w-kiKO1f2uMA&usqp=CAU";
-preprocessImage.src = imagePath;
+let imagePath;
+// preprocessImage.src = imagePath;
 // },1000)
 
 // variable for looping through image links
@@ -39,108 +37,105 @@ let n = 0;
 let posture;
 
 async function loadAndRunModel(event) {
-  posture = document.getElementById('posture');
-  let  movenet = await tf.loadGraphModel(MODEL_PATH, {fromTFHub: true});
+  // posture = document.getElementById('posture');
+  let movenet = await tf.loadGraphModel(MODEL_PATH, { fromTFHub: true });
   let exampleInputTensor = tf.zeros([1, 192, 192, 3], 'int32');
 
   event.target.classList.add('removed');
   demosSection.classList.remove('invisible');
 
-  setInterval (async function(){
+  setInterval(async function () {
     n++;
-    
-    var imagePath = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSntGBtyPrAp9ZjJoprI9W2g8w-kiKO1f2uMA&usqp=CAU";//"https://storage.googleapis.com/jmstore/TensorFlowJS/EdX/standing.jpg";//"https://t1.daumcdn.net/cfile/tistory/9927E4455A6E154C17";
-    // var imagePath = "/static/do.png"
+
+    var imagePath = link_data[n][1];
+    posture = link_data[n][2];
+    // var imagePath = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSntGBtyPrAp9ZjJoprI9W2g8w-kiKO1f2uMA&usqp=CAU";//"https://storage.googleapis.com/jmstore/TensorFlowJS/EdX/standing.jpg";//"https://t1.daumcdn.net/cfile/tistory/9927E4455A6E154C17";
+    // if (n%2 == 0) {imagePath = "/static/do.png"}
+    // if (n%2 == 1) {imagePath = "https://storage.googleapis.com/jmstore/TensorFlowJS/EdX/standing.jpg"}
     // var imagePath = links[n];
     preprocessImage.src = imagePath;
-    
-    tf.engine().startScope();
 
-    let predictionsArray = await predictImage();
-    
-    let predictions;
+    preprocessImage.onload = async function () {
+      tf.engine().startScope();
 
-    for (let i = 0; i < predictionsArray.length; i++) {
-      if (predictionsArray[i]['class'] == "person") {
-        predictions = predictionsArray[i];
-        break;
+      let predictionsArray = await predictImage();
+
+      let predictions;
+
+      for (let i = 0; i < predictionsArray.length; i++) {
+        if (predictionsArray[i]['class'] == 'person') {
+          predictions = predictionsArray[i];
+          break;
+        }
       }
-    }
-    if (predictions == undefined) {
-      return
-    }
+      if (predictions == undefined) {
+        return;
+      }
 
-    let imageTensor = tf.browser.fromPixels(preprocessImage);
-    const [wHeight, wWidth] = imageTensor.shape;
+      let imageTensor = tf.browser.fromPixels(preprocessImage);
+      const [wHeight, wWidth] = imageTensor.shape;
 
+      let bLeft = parseInt(predictions.bbox[0]);
+      let bTop = parseInt(predictions.bbox[1]);
+      let bWidth = parseInt(predictions.bbox[2]);
+      let bHeight = parseInt(predictions.bbox[3]);
+      if (bWidth > wWidth - bLeft) {
+        bWidth = wWidth - bLeft;
+      } // right of the image
+      if (bHeight > wHeight - bTop) {
+        bHeight = wHeight - bTop;
+      } // bottom of the image
+      if (bLeft < 0) {
+        bLeft = 0;
+      } // left of the image
+      if (bTop < 0) {
+        bTop = 0;
+      } // top
+      if (bHeight > bWidth) {
+        bHeight = bWidth;
+      } // if height > width, cut the height from bottom
+      let cropStartPoint = [bTop, bLeft, 0]; // red
+      let cropSize = [bHeight, bWidth, 3]; // all RGB
 
-    let bLeft = parseInt(predictions.bbox[0]);
-    let bTop = parseInt(predictions.bbox[1]);
-    let bWidth = parseInt(predictions.bbox[2]);
-    let bHeight = parseInt(predictions.bbox[3]);
-    if (bWidth > wWidth - bLeft) {bWidth = wWidth - bLeft}; // right of the image
-    if (bHeight > wHeight - bTop) {bHeight = wHeight - bTop}; // bottom of the image
-    if (bLeft < 0) {bLeft = 0}; // left of the image
-    if (bTop < 0) {bTop = 0}; // top
-    if (bHeight > bWidth) {bHeight = bWidth}; // if height > width, cut the height from bottom
-    let cropStartPoint = [bTop, bLeft, 0]; // red
-    let cropSize = [bHeight, bWidth, 3] // all RGB
-    // console.log(predictions)
+      let padAmount;
+      let padDirection;
 
-    let padAmount;
-    let padDirection;
-    // console.log('bwidth:'+bWidth + 'bheight:'+bHeight);
+      if (bWidth > bHeight) {
+        padAmount = bWidth - bHeight; // most likely not needed
+        padDirection = 'y';
+      } else if (bWidth < bHeight) {
+        padAmount = bHeight - bWidth;
+        padDirection = 'x';
+      }
 
-    if (bWidth > bHeight) {
-      padAmount = bWidth - bHeight; // most likely not needed
-      padDirection = 'y'
-    }
-    else if (bWidth < bHeight) {
-      padAmount = bHeight - bWidth;
-      padDirection = 'x'
-    }
+      let croppedTensor = tf.slice(imageTensor, cropStartPoint, cropSize);
 
-    // console.log(cropStartPoint);
-    // console.log(cropSize);
+      let paddedTensor;
+      let resizedTensor;
 
-    let croppedTensor = tf.slice(imageTensor, cropStartPoint, cropSize);
-    // console.log(croppedTensor.shape);
+      if (padDirection == 'x') {
+        paddedTensor = croppedTensor.pad([[0, padAmount], [0, 0], [0, 0]]);
+      } else if (padDirection == 'y') {
+        paddedTensor = croppedTensor.pad([[0, 0], [0, padAmount], [0, 0]]);
+      } else {
+        paddedTensor = croppedTensor;
+      }
 
-    let paddedTensor;
-    let resizedTensor;
-    
-    // console.log(padAmount + padDirection);
+      resizedTensor = tf.image.resizeBilinear(paddedTensor, [192, 192], true).toInt();
 
-    if (padDirection == 'x') {
-      paddedTensor = croppedTensor.pad([[0, padAmount], [0, 0], [0, 0]])
-    }
-    else if (padDirection == 'y') {
-      paddedTensor = croppedTensor.pad([[0, 0], [0, padAmount], [0, 0]])
-    }
-    else {
-      paddedTensor = croppedTensor
-    }
+      let tensorOutput = movenet.predict(tf.expandDims(resizedTensor));
+      let arrayOutput = await tensorOutput.array();
+      sendPostRequest(arrayOutput);
 
-    // console.log(paddedTensor.shape);
-    resizedTensor = tf.image.resizeBilinear(paddedTensor, [192, 192], true).toInt();
-    // console.log(resizedTensor.shape);
+      tf.dispose(imageTensor);
+      tf.dispose(croppedTensor);
+      tf.dispose(resizedTensor);
+      tf.dispose(tensorOutput);
+      tf.dispose(arrayOutput);
+      tf.engine().endScope();
+    };
 
-    let tensorOutput = movenet.predict(tf.expandDims(resizedTensor));
-    let arrayOutput = await tensorOutput.array();
-    // console.log(arrayOutput);
-    sendPostRequest(arrayOutput);
-    // tf.dispose(imageTensor);
-    // tf.dispose(croppedTensor);
-    // tf.dispose(resizedTensor);
-    // tf.dispose(tensorOutput);
-    tf.dispose(arrayOutput);
-    tf.engine().endScope();
-    // predictWebcam().then(function(prediction) {
-    //   console.log(prediction);
-    // });
-
-  }, 10000);
-
+  }, 5000);
 
 };
 
