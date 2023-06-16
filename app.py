@@ -88,17 +88,22 @@ def record_post_endpoint():
     cursor.execute(sql_create_table)
 
     # insert data
-    positions_output = request.json['movenet_output'] # 1, 1, 17, 3
-    single_point = positions_output[0][0] # 17, 3
-    y_point = [row[0] for row in single_point]
-    x_point = [row[1] for row in single_point]
+    positions_output = request.json['movenet_output'] # 1, 1, 17, 3 or 1, 1, 1, 17, 3
     posture_input = request.json['posture']
     location = request.json['location']
-    flatten_and_y = y_point + x_point + [posture_input, location]
+    flatten_and_y_list = []
+    if len(positions_output) == 1: # if not bulk 1, 1, 17, 3
+        positions_output = [positions_output] # make it bulk 1, 1, 1, 17, 3
+    for single_point in positions_output: # for 1, 1, 17, 3 in 1, 1, 1, 17, 3
+        inner_data = single_point[0][0] # 17, 3
+        y_point = [row[0] for row in inner_data]
+        x_point = [row[1] for row in inner_data]
+        flatten_and_y = y_point + x_point + [posture_input, location]
+        flatten_and_y_list.append(flatten_and_y)
     sql_insert = f'''
     INSERT INTO movenet_output ({', '.join(col_names).replace("'", '')}) VALUES {str(tuple([r'%s']*col_count_ex_id)).replace("'",'')}
     ''' # replace to delete quotes
-    cursor.execute(sql_insert, flatten_and_y)
+    cursor.executemany(sql_insert, flatten_and_y_list)
 
     # commit and close
     connection.commit()

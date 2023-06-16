@@ -37,6 +37,9 @@ async function loadAndRunModel() {
   posture = document.getElementById('posture');
   let  movenet = await tf.loadGraphModel(MODEL_PATH, {fromTFHub: true});
   let exampleInputTensor = tf.zeros([1, 192, 192, 3], 'int32');
+
+  let n = 0;
+  let arrayOutputBulk = [];
   
   setInterval (async function(){
 
@@ -102,7 +105,13 @@ async function loadAndRunModel() {
     let tensorOutput = movenet.predict(tf.expandDims(resizedTensor));
     let arrayOutput = await tensorOutput.array();
     // console.log(arrayOutput);
-    sendPostRequest(arrayOutput);
+    arrayOutputBulk.push(arrayOutput);
+    console.log(arrayOutputBulk);
+    if (arrayOutputBulk.length == 10) {
+      sendPostRequest(arrayOutputBulk);
+      arrayOutputBulk.length = 0;
+    }
+    // sendPostRequest(arrayOutput);
     // tf.dispose(imageTensor);
     // tf.dispose(croppedTensor);
     // tf.dispose(resizedTensor);
@@ -112,8 +121,9 @@ async function loadAndRunModel() {
     // predictWebcam().then(function(prediction) {
     //   console.log(prediction);
     // });
+    n++;
 
-  }, 1000);
+  }, 200);
 
 };
 
