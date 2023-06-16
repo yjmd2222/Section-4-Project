@@ -247,6 +247,7 @@ async function sendPostRequest(output) {
 
     // 응답을 텍스트 형식으로 변환합니다.
     const result = await response.text();
+    if (result != '정상') {playBeep()}
 
     // 결과를 웹페이지에 표시합니다.
     const resultElement = document.getElementById('result');
@@ -255,6 +256,36 @@ async function sendPostRequest(output) {
     // 에러를 처리합니다.
     console.error(error);
   }
+}
+
+function playBeep() {
+  // AudioContext 생성
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+  // Oscillator 생성
+  const oscillator = audioContext.createOscillator();
+  
+  // 볼륨을 조정하기 위해 GainNode 생성
+  const gainNode = audioContext.createGain();
+
+  // Oscillator와 GainNode 연결
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+
+  // 주파수 설정 (1000Hz)
+  oscillator.frequency.value = 500;
+
+  // 볼륨 설정 (0.5)
+  gainNode.gain.value = 0.3;
+
+  // 비프음 재생
+  oscillator.start();
+
+  // 1초 후에 비프음 정지
+  setTimeout(function() {
+    oscillator.stop();
+    audioContext.close();
+  }, 300);
 }
 
 // 특정 간격(밀리초)마다 POST 요청을 보내도록 설정합니다.
