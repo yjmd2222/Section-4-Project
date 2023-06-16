@@ -29,8 +29,8 @@ else {
 }
 
 // setInterval(function(){
-// var imagePath = "https://storage.googleapis.com/jmstore/TensorFlowJS/EdX/standing.jpg";
-// preprocessImage.src = imagePath;
+var imagePath = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSntGBtyPrAp9ZjJoprI9W2g8w-kiKO1f2uMA&usqp=CAU";
+preprocessImage.src = imagePath;
 // },1000)
 
 // variable for looping through image links
@@ -49,7 +49,7 @@ async function loadAndRunModel(event) {
   setInterval (async function(){
     n++;
     
-    var imagePath = "https://storage.googleapis.com/jmstore/TensorFlowJS/EdX/standing.jpg";//"https://t1.daumcdn.net/cfile/tistory/9927E4455A6E154C17";
+    var imagePath = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSntGBtyPrAp9ZjJoprI9W2g8w-kiKO1f2uMA&usqp=CAU";//"https://storage.googleapis.com/jmstore/TensorFlowJS/EdX/standing.jpg";//"https://t1.daumcdn.net/cfile/tistory/9927E4455A6E154C17";
     // var imagePath = "/static/do.png"
     // var imagePath = links[n];
     preprocessImage.src = imagePath;

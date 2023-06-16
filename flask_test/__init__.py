@@ -5,8 +5,8 @@ from flask_test.helpers import get_connection
 import pickle
 import numpy as np
 
-# 너무 느림
-with open('my_model.pkl', 'rb') as file:
+# too slow
+with open(r'flask_test\static\my_model.pkl', 'rb') as file:
     model = pickle.load(file)
 classes = {0: '거북목', 1: '등기댐', 2: '정상'}
 
