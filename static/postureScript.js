@@ -102,7 +102,7 @@ async function loadAndRunModel() {
 
     let tensorOutput = movenet.predict(tf.expandDims(resizedTensor));
     let arrayOutput = await tensorOutput.array();
-    console.log(arrayOutput);
+    // console.log(arrayOutput);
     const singlePoint = arrayOutput[0][0]; // 17, 3
 
     const yPoint = singlePoint.map(row => row[0]);
