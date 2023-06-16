@@ -4,7 +4,6 @@ helper functions
 import psycopg2
 
 from my_secrets import (
-    GOOGLE_CUSTOM_SEARCH_API_KEY, GOOGLE_CUSTOM_SEARCH_ENGINE_ID,
     DB_HOST_NAME, DB_USER_NAME, DB_PASSWORD, DB_NAME, DB_PORT
 )
 
