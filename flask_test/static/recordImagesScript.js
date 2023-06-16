@@ -6,7 +6,7 @@ const staticView = document.getElementById('view');
 const demosSection = document.getElementById('demos');
 const startPreprocessingButton = document.getElementById('startButton');
 
-console.log(link_data)
+console.log(link_data.length+'개')
 
 // Check if webcam access is supported.
 function getUserMediaSupported() {
@@ -44,11 +44,12 @@ async function loadAndRunModel(event) {
   event.target.classList.add('removed');
   demosSection.classList.remove('invisible');
 
-  setInterval(async function () {
+  let intervalId = setInterval(async function () {
     n++;
 
     var imagePath = link_data[n][1];
     posture = link_data[n][2];
+    console.log(link_data.length+'개 중 '+n+'개')
     // var imagePath = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSntGBtyPrAp9ZjJoprI9W2g8w-kiKO1f2uMA&usqp=CAU";//"https://storage.googleapis.com/jmstore/TensorFlowJS/EdX/standing.jpg";//"https://t1.daumcdn.net/cfile/tistory/9927E4455A6E154C17";
     // if (n%2 == 0) {imagePath = "/static/do.png"}
     // if (n%2 == 1) {imagePath = "https://storage.googleapis.com/jmstore/TensorFlowJS/EdX/standing.jpg"}
@@ -133,7 +134,10 @@ async function loadAndRunModel(event) {
       tf.dispose(tensorOutput);
       tf.dispose(arrayOutput);
       tf.engine().endScope();
-    };
+    }
+  if (n == link_data.length ){
+    clearInterval(intervalId);
+  }
 
   }, 5000);
 
@@ -251,7 +255,7 @@ async function sendPostRequest(output) {
   // POST 요청을 보낼 데이터를 준비합니다.
   var data = {
       "movenet_output": output,
-      "posture": posture.value
+      "posture": posture
   };
   // POST 요청을 보냅니다.
   fetch('/record-post-endpoint', {

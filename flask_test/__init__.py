@@ -80,7 +80,7 @@ def record_post_endpoint():
 
     # create table
     sql_create_table = f'''
-    CREATE TABLE IF NOT EXISTS test (
+    CREATE TABLE IF NOT EXISTS movenet_output (
         Id SERIAL PRIMARY KEY,
         {cols_string} 
     )
@@ -95,7 +95,7 @@ def record_post_endpoint():
     posture_input = request.json['posture']
     flatten_and_y = y_point + x_point + [posture_input]
     sql_insert = f'''
-    INSERT INTO test ({', '.join(col_names).replace("'", '')}) VALUES {str(tuple([r'%s']*col_count_ex_id)).replace("'",'')}
+    INSERT INTO movenet_output ({', '.join(col_names).replace("'", '')}) VALUES {str(tuple([r'%s']*col_count_ex_id)).replace("'",'')}
     ''' # replace to delete quotes
     cursor.execute(sql_insert, flatten_and_y)
 

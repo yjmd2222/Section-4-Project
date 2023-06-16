@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Hello World - TensorFlow.js</title>
+    <title>앉은 자세 분석기</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,13 +9,13 @@
     <link rel="stylesheet" href="static/style.css">
   </head>  
   <body>
-    <h1>Movenet</h1>
+    <h1>Coco SSD & Movenet</h1>
 
-    <p>Wait for the model to load before clicking the button to enable the webcam - at which point it will become visible to use.</p>
+    <p>웹캠 화면에서 사람을 객체탐지하고 신체 주요부위 위치를 기록합니다.</p>
     
     <section id="demos">
 
-      <p>Hold some objects up close to your webcam to get a real-time classification! When ready click "enable webcam" below and accept access to the webcam when the browser asks (check the top left of your window)</p>
+      <p>normal, forward_head, leaning 중 입력</p>
       
       <div id="view" class="view">
         <input type="text" id="posture">
