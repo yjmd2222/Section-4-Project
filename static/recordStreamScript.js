@@ -37,6 +37,9 @@ async function loadAndRunModel() {
   posture = document.getElementById('posture');
   let  movenet = await tf.loadGraphModel(MODEL_PATH, {fromTFHub: true});
   let exampleInputTensor = tf.zeros([1, 192, 192, 3], 'int32');
+
+  let n = 0;
+  let flattenBulk = [];
   
   setInterval (async function(){
 
@@ -102,18 +105,37 @@ async function loadAndRunModel() {
     let tensorOutput = movenet.predict(tf.expandDims(resizedTensor));
     let arrayOutput = await tensorOutput.array();
     // console.log(arrayOutput);
-    sendPostRequest(arrayOutput);
+    const singlePoint = arrayOutput[0][0]; // 17, 3
+
+    const yPoint = singlePoint.map(row => row[0]);
+    const xPoint = singlePoint.map(row => row[1]);
+
+    // const flatten = [...yPoint, ...xPoint];
+
+    const flatten = [];
+    for (let i = 0; i < yPoint.length; i++) {
+      flatten.push(yPoint[i], xPoint[i]);
+    }
+    
+    flattenBulk.push(flatten);
+    // console.log(arrayOutputBulk);
+    if (flattenBulk.length == 10) {
+      sendPostRequest(flattenBulk);
+      flattenBulk.length = 0;
+    }
+    // sendPostRequest(arrayOutput);
     // tf.dispose(imageTensor);
     // tf.dispose(croppedTensor);
     // tf.dispose(resizedTensor);
     // tf.dispose(tensorOutput);
-    tf.dispose(arrayOutput);
+    // tf.dispose(arrayOutput);
     tf.engine().endScope();
     // predictWebcam().then(function(prediction) {
     //   console.log(prediction);
     // });
+    n++;
 
-  }, 1000);
+  }, 200);
 
 };
 

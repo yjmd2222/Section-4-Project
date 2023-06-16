@@ -1,4 +1,5 @@
 const MODEL_PATH = 'https://tfhub.dev/google/tfjs-model/movenet/singlepose/lightning/4';
+const classifier = await tf.loadLayersModel('/static/tfjs_model/model.json');
 // const EXAMPLE_IMG = document.getElementById('exampleImg');
 
 const video = document.getElementById('webcam');
@@ -102,12 +103,35 @@ async function loadAndRunModel() {
     let tensorOutput = movenet.predict(tf.expandDims(resizedTensor));
     let arrayOutput = await tensorOutput.array();
     // console.log(arrayOutput);
-    sendPostRequest(arrayOutput);
+    const singlePoint = arrayOutput[0][0]; // 17, 3
+
+    const yPoint = singlePoint.map(row => row[0]);
+    const xPoint = singlePoint.map(row => row[1]);
+
+    // const flatten = [...yPoint, ...xPoint];
+
+    const flatten = [];
+    for (let i = 0; i < yPoint.length; i++) {
+      flatten.push(yPoint[i], xPoint[i]);
+    }
+
+    console.log(flatten)
+    const xyTensor = tf.tensor(flatten, [1, flatten.length]);
+    // console.log(tensor.shape)
+    let classifierOutput = await classifier.predict(xyTensor);
+    let classifierProbas = classifierOutput.arraySync()[0];
+    let max = Math.max(...classifierProbas);
+    let yourPosture = classes[classifierProbas.indexOf(max)];
+    console.log(yourPosture);
+    
+
+    // console.log(arrayOutput);
+    // sendPostRequest(arrayOutput);
     // tf.dispose(imageTensor);
     // tf.dispose(croppedTensor);
     // tf.dispose(resizedTensor);
     // tf.dispose(tensorOutput);
-    tf.dispose(arrayOutput);
+    // tf.dispose(arrayOutput);
     tf.engine().endScope();
     // predictWebcam().then(function(prediction) {
     //   console.log(prediction);
