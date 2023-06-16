@@ -1,6 +1,6 @@
 from flask_cors import CORS
 from flask import Flask, request, render_template, jsonify
-from flask_test.helpers import get_connection
+from helpers import get_connection
 
 import pickle
 import numpy as np
