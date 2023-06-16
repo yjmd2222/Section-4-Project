@@ -6,7 +6,7 @@ import pickle
 import numpy as np
 
 # too slow
-with open(r'static\my_model.pkl', 'rb') as file:
+with open(r'static/my_model.pkl', 'rb') as file:
     model = pickle.load(file)
 classes = {0: '거북목', 1: '등기댐', 2: '정상'}
 
