@@ -1,16 +1,18 @@
+'''
+appppppp
+'''
 from flask_cors import CORS
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template
 from helpers import get_connection
 
-from datetime import datetime, timezone, timedelta
-
-# too slow
-# with open(r'static/my_model.pkl', 'rb') as file:
-#     model = pickle.load(file)
-# classes = {0: '거북목', 1: '등기댐', 2: '정상'}
+from datetime import datetime,  timedelta
 
 app = Flask(__name__)
 CORS(app)
+
+@app.route('/', methods=['GET'])
+def index():
+    return render_template('index.html')
 
 @app.route('/record_stream', methods=['GET'])
 def record_stream():
@@ -139,41 +141,6 @@ def record_post_endpoint():
     connection.close()
 
     return 'POST from record'
-
-# @app.route('/image-get-endpoint', methods=['GET'])
-# def image_get_endpoint():
-#     '''whatthefuck'''
-#     import psycopg2
-
-#     # connection info
-#     host = DB_HOST_NAME
-#     user = DB_USER_NAME
-#     password = DB_PASSWORD
-#     database = DB_NAME
-
-#     # conn
-#     connection = psycopg2.connect(
-#         host=host,
-#         user=user,
-#         password=password,
-#         database=database
-#     )
-
-#     # cur
-#     cursor = connection.cursor()
-
-#     # look up table
-#     sql_fetch_data = f'''
-#     SELECT Link
-#     FROM TABLE Links;
-#     '''
-#     cursor.execute(sql_fetch_data)
-
-#     # get links
-#     links = cursor.fetchall()
-
-#     return render_template('images.html', links=links)
-
 
 if __name__ == '__main__':
     app.run(debug=True)
