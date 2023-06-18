@@ -50,8 +50,7 @@ def posture_post_endpoint():
     predicted_posture = request.json['predictedPosture']
     probas = request.json['probas']
     timestamp = request.json['timestamp']
-    utc9 = datetime.fromtimestamp(timestamp/1000) + timedelta(hours=9) # js는 밀리초 단위로
-    utc9 = utc9.strftime(r'%Y-%m-%dT%H:%M:%SZ+0900')
+    timestamp = datetime.fromtimestamp(timestamp/1000) # conversion from js to python: div 1000
 
     # connection
     connection = get_connection()
@@ -61,9 +60,9 @@ def posture_post_endpoint():
     col_names = 'nose, left eye, right eye, left ear, right ear, left shoulder, right shoulder, left elbow, right elbow, left wrist, right wrist, left hip, right hip, left knee, right knee, left ankle, right ankle'
     col_names = col_names.split(sep=', ') # list has original col names
     col_names = [i.replace(' ', '_') for i in col_names] # underscore for blank
-    col_names = [col+i for col in col_names for i in ('_y', '_x')] + ['posture', 'forward_head_p', 'leaning_p', 'normal_p', 'time_9']
+    col_names = [col+i for col in col_names for i in ('_y', '_x')] + ['posture', 'forward_head_p', 'leaning_p', 'normal_p', 'timestamp']
     col_names_and_types = [i + ' FLOAT,' for i in col_names[:34]] + [col_names[-5]+' VARCHAR(20),'] + [i+' FLOAT,' for i in col_names[-4:-1]]\
-        + [col_names[-1]+' VARCHAR(25)']
+        + [col_names[-1]+' TIMESTAMP']
     cols_string = '\n    '.join(col_names_and_types)
     col_count_ex_id = len(col_names_and_types)
 
@@ -77,7 +76,7 @@ def posture_post_endpoint():
     cursor.execute(sql_create_table)
 
     # insert
-    datapoint = movenet_output + [classes_eng.get(predicted_posture), *probas, utc9]
+    datapoint = movenet_output + [classes_eng.get(predicted_posture), *probas, timestamp]
     sql_insert = f'''
     INSERT INTO classifier_predict ({', '.join(col_names).replace("'", '')}) VALUES {str(tuple([r'%s']*col_count_ex_id)).replace("'",'')}
     ''' # replace to delete quotes
