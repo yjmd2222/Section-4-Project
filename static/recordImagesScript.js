@@ -1,7 +1,6 @@
-const MODEL_PATH = 'https://tfhub.dev/google/tfjs-model/movenet/singlepose/lightning/4';
-const preprocessImage = document.getElementById('preprocessImage');
+const MODEL_PATH = 'https://tfhub.dev/google/tfjs-model/movenet/singlepose/lightning/4'; // movenet
+const preprocessImage = document.getElementById('preprocessImage'); // image to run movenet on
 
-// const video = document.getElementById('images');
 const staticView = document.getElementById('view');
 const demosSection = document.getElementById('demos');
 const startPreprocessingButton = document.getElementById('startButton');
@@ -25,10 +24,7 @@ if (getUserMediaSupported()) {
     console.warn('getUserMedia() is not supported by your browser');
 }
 
-// setInterval(function(){
 let imagePath;
-// preprocessImage.src = imagePath;
-// },1000)
 
 // variable for looping through image links
 let n = 0;
@@ -36,7 +32,6 @@ let n = 0;
 let posture;
 
 async function loadAndRunModel(event) {
-    // posture = document.getElementById('posture');
     let movenet = await tf.loadGraphModel(MODEL_PATH, {
         fromTFHub: true
     });
@@ -51,10 +46,6 @@ async function loadAndRunModel(event) {
         var imagePath = link_data[n][1];
         posture = link_data[n][2];
         console.log(link_data.length + '개 중 ' + n + '개')
-        // var imagePath = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSntGBtyPrAp9ZjJoprI9W2g8w-kiKO1f2uMA&usqp=CAU";//"https://storage.googleapis.com/jmstore/TensorFlowJS/EdX/standing.jpg";//"https://t1.daumcdn.net/cfile/tistory/9927E4455A6E154C17";
-        // if (n%2 == 0) {imagePath = "/static/do.png"}
-        // if (n%2 == 1) {imagePath = "https://storage.googleapis.com/jmstore/TensorFlowJS/EdX/standing.jpg"}
-        // var imagePath = links[n];
         preprocessImage.src = imagePath;
 
         preprocessImage.onload = async function() {
@@ -140,19 +131,12 @@ async function loadAndRunModel(event) {
             const yPoint = singlePoint.map(row => row[0]);
             const xPoint = singlePoint.map(row => row[1]);
 
-            // const flatten = [...yPoint, ...xPoint];
-
             const flatten = [];
             for (let i = 0; i < yPoint.length; i++) {
                 flatten.push(yPoint[i], xPoint[i]);
             }
             sendPostRequest(flatten, imagePath);
-
-            // tf.dispose(imageTensor);
-            // tf.dispose(croppedTensor);
-            // tf.dispose(resizedTensor);
-            // tf.dispose(tensorOutput);
-            // tf.dispose(arrayOutput);
+            
             tf.engine().endScope();
         }
         if (n == link_data.length) {
@@ -163,48 +147,6 @@ async function loadAndRunModel(event) {
 
 };
 
-
-// Enable the live webcam view and start classification.
-// async function enableCam(event) {
-//   // Only continue if the COCO-SSD has finished loading.
-//   // if (!model) {
-//   //   return;
-//   // }
-
-//   // Hide the button once clicked.
-//   event.target.classList.add('removed');  
-
-//   // getUsermedia parameters to force video but not audio.
-//   const constraints = {
-//     video: true
-//   };
-//   let display = await navigator.mediaDevices
-//     .getUserMedia(constraints);
-
-//   // Returns a sequence of MediaStreamTrack objects 
-//   // representing the video tracks in the stream
-
-//   let settings = display.getVideoTracks()[0]
-//       .getSettings();
-
-//   let width = settings.width;
-//   let height = settings.height;
-
-//   console.log('Actual width of the camera video: '
-//       + width + 'px');
-//   console.log('Actual height of the camera video:'
-//       + height + 'px');
-//   const p = document.createElement('p');
-//   p.innerText = width + 'X' + height;
-//   var d = document.getElementsByTagName('div');
-//   d[0].append(p);
-
-//   // Activate the webcam stream.
-//   navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
-//     video.srcObject = stream;
-//     video.addEventListener('loadeddata', predictWebcam);
-//   });
-// }
 
 var model = undefined;
 
@@ -237,7 +179,6 @@ function predictImage() {
             // Now lets loop through predictions and draw them to the live view if
             // they have a high confidence score.
             for (let n = 0; n < predictions.length; n++) {
-                // if (predictions[n].class == "person") {
 
                 // If we are over 66% sure we are sure we classified it right, draw it!
                 if (predictions[n].score > 0.66) {
@@ -290,6 +231,3 @@ async function sendPostRequest(output, receivedImagePath) {
         .then(result => console.log(result))
         .catch(error => console.error(error));
 }
-
-// 특정 간격(밀리초)마다 POST 요청을 보내도록 설정합니다.
-// setInterval(sendPostRequest, 5000); // 5초마다 POST 요청을 보냅니다.

@@ -1,13 +1,12 @@
-const MODEL_PATH = 'https://tfhub.dev/google/tfjs-model/movenet/singlepose/lightning/4';
-const classifier = await tf.loadLayersModel('/static/tfjs_model/model.json');
-// const EXAMPLE_IMG = document.getElementById('exampleImg');
+const MODEL_PATH = 'https://tfhub.dev/google/tfjs-model/movenet/singlepose/lightning/4'; // movenet
+const classifier = await tf.loadLayersModel('/static/tfjs_model/model.json'); // classifier for posture
 
 const video = document.getElementById('webcam');
 const liveView = document.getElementById('view');
-const demosSection = document.getElementById('demos');
+const demosSection = document.getElementById('demos'); // section containing webcam
 const enableWebcamButton = document.getElementById('webcamButton');
 
-const resultElement = document.getElementById('result')
+const resultElement = document.getElementById('result') // classifier output
 
 // Check if webcam access is supported.
 function getUserMediaSupported() {
@@ -22,13 +21,6 @@ if (getUserMediaSupported()) {
     enableWebcamButton.addEventListener('click', enableCam)
     enableWebcamButton.addEventListener('click', loadAndRunModel)
 }
-// if (getUserMediaSupported()) {
-//   enableWebcamButton.addEventListener('click', function (event) {
-//     enableCam(event).then(({ wWidth, wHeight}) => { 
-//       loadAndRunModel(wWidth, wHeight);
-//     });
-//   });
-// }
 else {
     console.warn('getUserMedia() is not supported by your browser');
 }
@@ -38,7 +30,7 @@ async function loadAndRunModel() {
     let movenet = await tf.loadGraphModel(MODEL_PATH, {
         fromTFHub: true
     });
-    let exampleInputTensor = tf.zeros([1, 192, 192, 3], 'int32');
+    let exampleInputTensor = tf.zeros([1, 192, 192, 3], 'int32'); // example tensor input size for movenet
 
     setInterval(async function() {
 
@@ -71,37 +63,29 @@ async function loadAndRunModel() {
         }; // if height > width, cut the height from bottom
         let cropStartPoint = [bTop, bLeft, 0]; // red
         let cropSize = [bHeight, bWidth, 3] // all RGB
-        // console.log(predictions)
 
-        let padAmount;
-        let padDirection;
-        // console.log('bwidth:'+bWidth + 'bheight:'+bHeight);
+        let padAmount; // how much to padd if bb isn't square
+        let padDirection; // direction of the padding
 
         if (bWidth > bHeight) {
-            padAmount = bWidth - bHeight; // most likely not needed
+            padAmount = bWidth - bHeight;
             padDirection = 'y'
         } else if (bWidth < bHeight) {
             padAmount = bHeight - bWidth;
             padDirection = 'x'
         }
 
-        // console.log(cropStartPoint);
-        // console.log(cropSize);
-
         let croppedTensor = tf.slice(imageTensor, cropStartPoint, cropSize);
-        // console.log(croppedTensor.shape);
 
         let paddedTensor;
         let resizedTensor;
-
-        // console.log(padAmount + padDirection);
 
         if (padDirection = 'x') {
             paddedTensor = croppedTensor.pad([
                 [0, padAmount],
                 [0, 0],
                 [0, 0]
-            ])
+            ]) // look up the usage in tfjs API
         } else if (padDirection = 'y') {
             paddedTensor = croppedTensor.pad([
                 [0, 0],
@@ -112,19 +96,14 @@ async function loadAndRunModel() {
             paddedTensor = croppedTensor
         }
 
-        // console.log(paddedTensor.shape);
         resizedTensor = tf.image.resizeBilinear(paddedTensor, [192, 192], true).toInt();
-        // console.log(resizedTensor.shape);
 
         let tensorOutput = movenet.predict(tf.expandDims(resizedTensor));
         let arrayOutput = await tensorOutput.array();
-        // console.log(arrayOutput);
         const singlePoint = arrayOutput[0][0]; // 17, 3
 
         const yPoint = singlePoint.map(row => row[0]);
         const xPoint = singlePoint.map(row => row[1]);
-
-        // const flatten = [...yPoint, ...xPoint];
 
         const flatten = [];
         for (let i = 0; i < yPoint.length; i++) {
@@ -133,29 +112,17 @@ async function loadAndRunModel() {
 
         console.log(flatten)
         const xyTensor = tf.tensor(flatten, [1, flatten.length]);
-        // console.log(tensor.shape)
         let classifierOutput = await classifier.predict(xyTensor);
         let classifierProbas = classifierOutput.arraySync()[0];
         let max = Math.max(...classifierProbas);
         let yourPosture = classes[classifierProbas.indexOf(max)];
-        // console.log(yourPosture);
         resultElement.textContent = yourPosture;
         if (yourPosture != '정상') {
-            playBeep()
+            playBeep() // beep when posture isn't normal
         }
 
-
-        // console.log(arrayOutput);
         sendPostRequest(flatten, yourPosture, classifierProbas, Date.now());
-        // tf.dispose(imageTensor);
-        // tf.dispose(croppedTensor);
-        // tf.dispose(resizedTensor);
-        // tf.dispose(tensorOutput);
-        // tf.dispose(arrayOutput);
         tf.engine().endScope();
-        // predictWebcam().then(function(prediction) {
-        //   console.log(prediction);
-        // });
 
     }, 5000);
 
@@ -181,32 +148,11 @@ async function enableCam(event) {
     // Returns a sequence of MediaStreamTrack objects 
     // representing the video tracks in the stream
 
-    let settings = display.getVideoTracks()[0]
-        .getSettings();
-
-    // let wWidth = settings.width;
-    // let wHeight = settings.height;
-
-    // console.log('Actual width of the camera video: '
-    //     + wWidth + 'px');
-    // console.log('Actual height of the camera video:'
-    //     + wHeight + 'px');
-    // const p = document.createElement('p');
-    // p.innerText = wWidth + 'X' + wHeight;
-    // var d = document.getElementsByTagName('div');
-    // d[0].append(p);
-
     return new Promise((resolve) => {
         navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
             video.srcObject = stream;
         });
     });
-    // // Activate the webcam stream.
-    // navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
-    //   video.srcObject = stream;
-    //   return stream.getVideoTracks()[0].getSettings();
-    //   // video.addEventListener('loadeddata', predictWebcam);
-    // });
 }
 
 // Store the resulting model in the global scope of our app.
@@ -227,7 +173,7 @@ var children = [];
 
 
 
-// display
+// display bbox
 function predictWebcam() {
     return new Promise((resolve) => {
         // Now let's start classifying a frame in the stream.
@@ -292,14 +238,6 @@ async function sendPostRequest(output, posture, probas, currentTime) {
             },
             body: JSON.stringify(data)
         });
-
-        // 응답을 텍스트 형식으로 변환합니다.
-        // const result = await response.text();
-        // if (result != '정상') {playBeep()}
-
-        // 결과를 웹페이지에 표시합니다.
-        // const resultElement = document.getElementById('result');
-        // resultElement.textContent = result;
     } catch (error) {
         // 에러를 처리합니다.
         console.error(error);
@@ -335,6 +273,3 @@ function playBeep() {
         audioContext.close();
     }, 300);
 }
-
-// 특정 간격(밀리초)마다 POST 요청을 보내도록 설정합니다.
-// setInterval(sendPostRequest, 5000); // 5초마다 POST 요청을 보냅니다.
