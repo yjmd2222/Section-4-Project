@@ -1,5 +1,4 @@
 const MODEL_PATH = 'https://tfhub.dev/google/tfjs-model/movenet/singlepose/lightning/4';
-// const EXAMPLE_IMG = document.getElementById('exampleImg');
 
 const video = document.getElementById('webcam');
 const liveView = document.getElementById('view');
@@ -20,13 +19,6 @@ if (getUserMediaSupported()) {
     enableWebcamButton.addEventListener('click', enableCam)
     enableWebcamButton.addEventListener('click', loadAndRunModel)
 }
-// if (getUserMediaSupported()) {
-//   enableWebcamButton.addEventListener('click', function (event) {
-//     enableCam(event).then(({ wWidth, wHeight}) => { 
-//       loadAndRunModel(wWidth, wHeight);
-//     });
-//   });
-// }
 else {
     console.warn('getUserMedia() is not supported by your browser');
 }
@@ -74,11 +66,9 @@ async function loadAndRunModel() {
         }; // if height > width, cut the height from bottom
         let cropStartPoint = [bTop, bLeft, 0]; // red
         let cropSize = [bHeight, bWidth, 3] // all RGB
-        // console.log(predictions)
 
         let padAmount;
         let padDirection;
-        // console.log('bwidth:'+bWidth + 'bheight:'+bHeight);
 
         if (bWidth > bHeight) {
             padAmount = bWidth - bHeight; // most likely not needed
@@ -88,16 +78,10 @@ async function loadAndRunModel() {
             padDirection = 'x'
         }
 
-        // console.log(cropStartPoint);
-        // console.log(cropSize);
-
         let croppedTensor = tf.slice(imageTensor, cropStartPoint, cropSize);
-        // console.log(croppedTensor.shape);
 
         let paddedTensor;
         let resizedTensor;
-
-        // console.log(padAmount + padDirection);
 
         if (padDirection == 'x') {
             paddedTensor = croppedTensor.pad([
@@ -114,20 +98,15 @@ async function loadAndRunModel() {
         } else {
             paddedTensor = croppedTensor
         }
-
-        // console.log(paddedTensor.shape);
+        
         resizedTensor = tf.image.resizeBilinear(paddedTensor, [192, 192], true).toInt();
-        // console.log(resizedTensor.shape);
 
         let tensorOutput = movenet.predict(tf.expandDims(resizedTensor));
         let arrayOutput = await tensorOutput.array();
-        // console.log(arrayOutput);
         const singlePoint = arrayOutput[0][0]; // 17, 3
 
         const yPoint = singlePoint.map(row => row[0]);
         const xPoint = singlePoint.map(row => row[1]);
-
-        // const flatten = [...yPoint, ...xPoint];
 
         const flatten = [];
         for (let i = 0; i < yPoint.length; i++) {
@@ -135,21 +114,13 @@ async function loadAndRunModel() {
         }
 
         flattenBulk.push(flatten);
-        // console.log(arrayOutputBulk);
         if (flattenBulk.length == 10) {
             sendPostRequest(flattenBulk);
             flattenBulk.length = 0;
         }
-        // sendPostRequest(arrayOutput);
-        // tf.dispose(imageTensor);
-        // tf.dispose(croppedTensor);
-        // tf.dispose(resizedTensor);
-        // tf.dispose(tensorOutput);
-        // tf.dispose(arrayOutput);
+        
         tf.engine().endScope();
-        // predictWebcam().then(function(prediction) {
-        //   console.log(prediction);
-        // });
+        
         n++;
 
     }, 200);
@@ -176,32 +147,11 @@ async function enableCam(event) {
     // Returns a sequence of MediaStreamTrack objects 
     // representing the video tracks in the stream
 
-    let settings = display.getVideoTracks()[0]
-        .getSettings();
-
-    let wWidth = settings.width;
-    let wHeight = settings.height;
-
-    console.log('Actual width of the camera video: ' +
-        wWidth + 'px');
-    console.log('Actual height of the camera video:' +
-        wHeight + 'px');
-    const p = document.createElement('p');
-    p.innerText = wWidth + 'X' + wHeight;
-    var d = document.getElementsByTagName('div');
-    d[0].append(p);
-
     return new Promise((resolve) => {
         navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
             video.srcObject = stream;
         });
     });
-    // // Activate the webcam stream.
-    // navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
-    //   video.srcObject = stream;
-    //   return stream.getVideoTracks()[0].getSettings();
-    //   // video.addEventListener('loadeddata', predictWebcam);
-    // });
 }
 
 // Store the resulting model in the global scope of our app.
@@ -287,6 +237,3 @@ async function sendPostRequest(output) {
         .then(result => console.log(result))
         .catch(error => console.error(error));
 }
-
-// 특정 간격(밀리초)마다 POST 요청을 보내도록 설정합니다.
-// setInterval(sendPostRequest, 5000); // 5초마다 POST 요청을 보냅니다.

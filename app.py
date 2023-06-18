@@ -12,12 +12,12 @@ CORS(app)
 
 @app.route('/', methods=['GET'])
 def index():
-    return render_template('index.html')
+    return render_template('index.html'), 200
 
 @app.route('/record_stream', methods=['GET'])
 def record_stream():
     'streaming video data recording page'
-    return render_template('recordStream.html')
+    return render_template('recordStream.html'), 200
 
 @app.route('/record_images', methods=['GET'])
 def record_images():
@@ -34,13 +34,13 @@ def record_images():
     cursor.execute(sql_fetch_data)
     link_data = cursor.fetchall()
 
-    return render_template('recordImages.html', link_data=link_data)
+    return render_template('recordImages.html', link_data=link_data), 200
 
 @app.route('/check-posture', methods=['GET'])
 def your_posture():
     'model demo'
     from labels import classes
-    return render_template('checkPosture.html', classes=classes)
+    return render_template('checkPosture.html', classes=classes), 200
 
 @app.route('/check-posture-post-endpoint', methods=['POST'])
 def posture_post_endpoint():
@@ -87,7 +87,7 @@ def posture_post_endpoint():
     cursor.close()
     connection.close()
 
-    return 'POST from check-posture'
+    return 'POST from check-posture', 200
 
 @app.route('/record-post-endpoint', methods=['POST'])
 def record_post_endpoint():
@@ -106,7 +106,7 @@ def record_post_endpoint():
     col_names = col_names.split(sep=', ') # list has original col names
     col_names = [i.replace(' ', '_') for i in col_names] # underscore for blank
     col_names = [col+i for col in col_names for i in ('_y', '_x')] + ['posture', 'location'] # y,x coords for each col. tf lists y coords first
-    col_names_and_types = [i + ' FLOAT,' for i in col_names[:-2]] + [col_names[-2]+' VARCHAR(20),',  col_names[-1]+' VARCHAR(1000)'] # sql FLOAT for all cols. posture at the end
+    col_names_and_types = [i + ' FLOAT,' for i in col_names[:-2]] + [col_names[-2]+' VARCHAR(20),',  col_names[-1]+' VARCHAR(1000)']
     cols_string = '\n    '.join(col_names_and_types)
     col_count_ex_id = len(col_names_and_types)
 
@@ -124,7 +124,7 @@ def record_post_endpoint():
     posture_input = request.json['posture']
     location = request.json['location']
     point_y_list = []
-    if len(movenet_output) != 1: # if not bulk which is 34
+    if len(movenet_output) == 34: # if not bulk which is 34
         movenet_output = [movenet_output] # make it bulk 1, 34
     for single_point in movenet_output: # for 34 in 1, 34
         single_point_y = single_point + [posture_input, location]
@@ -139,7 +139,7 @@ def record_post_endpoint():
     cursor.close()
     connection.close()
 
-    return 'POST from record'
+    return 'POST from record', 200
 
 if __name__ == '__main__':
     app.run(debug=True)
