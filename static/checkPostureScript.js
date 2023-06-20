@@ -6,6 +6,8 @@ const liveView = document.getElementById('view');
 const demosSection = document.getElementById('demos'); // section containing webcam
 const enableWebcamButton = document.getElementById('webcamButton');
 
+const agreeCollectDataButton = document.getElementById('agreeCollectData'); // 데이터 수집 동의
+
 const resultElement = document.getElementById('result') // classifier output
 
 // Check if webcam access is supported.
@@ -25,6 +27,14 @@ else {
     console.warn('getUserMedia() is not supported by your browser');
 }
 
+// click to agree to collecting data
+agreeCollectDataButton.addEventListener('click', collectData)
+
+let isCollect;
+
+function collectData() {
+    isCollect = true;
+}
 
 async function loadAndRunModel() {
     let movenet = await tf.loadGraphModel(MODEL_PATH, {
@@ -121,7 +131,9 @@ async function loadAndRunModel() {
             playBeep() // beep when posture isn't normal
         }
 
-        sendPostRequest(flatten, yourPosture, classifierProbas, Date.now());
+        if (isCollect) {
+            sendPostRequest(flatten, yourPosture, classifierProbas, Date.now());
+        }
         tf.engine().endScope();
 
     }, 5000);

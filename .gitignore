@@ -6,3 +6,6 @@ test.html
 examples/
 movenet_thunder.tflite
 data/*.csv
+*.ppt
+*.pptx
+README.md
